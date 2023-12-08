@@ -6,10 +6,11 @@ require("dotenv").config();
 // Custom Imports
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
+const userRouter = require("./routes/userRoutes");
 
 const corsOptions = {
   origin: "http://localhost:3000",
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
 };
 
 const app = express();
@@ -30,6 +31,7 @@ app.get("/", (req, res) => {
 });
 
 // ROUTES
+app.use("/api/v1/users", userRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
