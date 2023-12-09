@@ -11,7 +11,7 @@ router.route("/").post(chatController.createChat);
 router.route("/:id").get(chatController.getChat);
 
 // GROUP CHAT ROUTES
-// router.route("/group").post(chatController.createGroupChat);
+router.route("/group").post(chatController.createGroupChat);
 // router.route("/group/:id").put(chatController.renameGroupChat);
 // router.route("/group/:id/add").put(chatController.addToGroupChat);
 // router.route("/group/:id/remove").put(chatController.removeFromGroupChat);

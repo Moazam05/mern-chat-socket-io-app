@@ -67,3 +67,51 @@ exports.getChat = catchAsync(async (req, res, next) => {
     chat: FullChat,
   });
 });
+
+exports.createGroupChat = catchAsync(async (req, res, next) => {
+  const { chatName, users } = req.body;
+
+  if (!chatName) {
+    return next(new AppError("Please provide a chat name ", 400));
+  }
+
+  if (!users || users.length < 1) {
+    return next(new AppError("Please provide at least 1 users ", 400));
+  }
+
+  const newUsers = [...users, req.user._id];
+
+  // 1) Check if chat already exists with the same name and with the same groupAdmin
+  const isChat = await Chat.find({
+    isGroupChat: true,
+    chatName,
+    users: { $all: newUsers },
+  })
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password");
+
+  if (isChat.length > 0) {
+    return next(
+      new AppError("You already have a group chat with the same name", 400)
+    );
+  }
+
+  // 2) Chat Create
+  const newChat = await Chat.create({
+    chatName,
+    isGroupChat: true,
+    users: newUsers,
+    groupAdmin: req.user._id,
+  });
+
+  // 3) Chat Find
+  const FullChat = await Chat.findById(newChat._id)
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password");
+
+  // 4) Response
+  res.status(200).json({
+    status: "success",
+    chat: FullChat,
+  });
+});
