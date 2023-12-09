@@ -1,24 +1,32 @@
-import { Box, Button, Tooltip } from "@mui/material";
+// React Imports
 import { useState, useRef } from "react";
 import { useDispatch } from "react-redux";
-import { Heading, SubHeading } from "../../components/Heading";
+import { useNavigate } from "react-router-dom";
+// MUI Imports
+import { Box, Button, Tooltip } from "@mui/material";
+// Redux Imports
 import {
   selectedUserAvatar,
   selectedUserEmail,
   selectedUserName,
   setUser,
 } from "../../redux/auth/authSlice";
+import { useUpdateUserMutation } from "../../redux/api/userApiSlice";
+// Hooks
 import useTypedSelector from "../../hooks/useTypedSelector";
-import DotLoader from "../../components/Spinner/dotLoader";
-import PrimaryInput from "../../components/PrimaryInput/PrimaryInput";
 // Formik Imports
 import { Form, Formik, FormikProps } from "formik";
+// Yup Imports
 import * as Yup from "yup";
+// Utils Imports
 import { onKeyDown } from "../../utils";
-import { useUpdateUserMutation } from "../../redux/api/userApiSlice";
+// Custom Imports
 import ToastAlert from "../../components/ToastAlert/ToastAlert";
-import { useNavigate } from "react-router-dom";
+import { Heading, SubHeading } from "../../components/Heading";
+import DotLoader from "../../components/Spinner/dotLoader";
+import PrimaryInput from "../../components/PrimaryInput/PrimaryInput";
 
+// Yup Validation Schema
 const profileSchema = Yup.object().shape({
   name: Yup.string().required("Name is required").nullable(),
   email: Yup.string()
@@ -28,6 +36,7 @@ const profileSchema = Yup.object().shape({
   pic: Yup.string(),
 });
 
+// Form Values Interface
 interface ISProfileForm {
   name: string;
   email: string;
@@ -62,8 +71,17 @@ const Profile = () => {
 
   const handleImage = (e: any) => {
     const file = e.target.files[0];
-    setFileToBase(file);
-    setFile(file);
+    if (file.size > 1024 * 1024) {
+      return setToast({
+        ...toast,
+        message: "Image size is too large (Max: 1mb)",
+        appearence: true,
+        type: "error",
+      });
+    } else {
+      setFileToBase(file);
+      setFile(file);
+    }
   };
 
   const setFileToBase = (file: any) => {
@@ -74,6 +92,7 @@ const Profile = () => {
     };
   };
 
+  // UPDATE PROFILE API CALL
   const [updateProfile, { isLoading }] = useUpdateUserMutation();
 
   const ProfileHandler = async (data: ISProfileForm) => {
