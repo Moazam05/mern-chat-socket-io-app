@@ -115,3 +115,29 @@ exports.createGroupChat = catchAsync(async (req, res, next) => {
     chat: FullChat,
   });
 });
+
+exports.renameGroupChat = catchAsync(async (req, res, next) => {
+  const { chatName } = req.body;
+
+  if (!chatName) {
+    return next(new AppError("Please provide a chat name ", 400));
+  }
+
+  const chat = await Chat.findById(req.params.id);
+
+  if (!chat) {
+    return next(new AppError("No chat found with that id", 404));
+  }
+
+  if (chat.groupAdmin.toString() !== req.user._id.toString()) {
+    return next(new AppError("You are not the admin of this group", 400));
+  }
+
+  chat.chatName = chatName;
+  await chat.save();
+
+  res.status(200).json({
+    status: "success",
+    chat,
+  });
+});
