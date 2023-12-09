@@ -1,5 +1,6 @@
 import { Box, Button, Tooltip } from "@mui/material";
 import { useState, useRef } from "react";
+import { useDispatch } from "react-redux";
 import { Heading, SubHeading } from "../../components/Heading";
 import {
   selectedUserAvatar,
@@ -34,7 +35,7 @@ interface ISProfileForm {
 }
 
 const Profile = () => {
-  // const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement | null | any>(null);
   const userAvatar = useTypedSelector(selectedUserAvatar);
@@ -76,6 +77,9 @@ const Profile = () => {
   const [updateProfile, { isLoading }] = useUpdateUserMutation();
 
   const ProfileHandler = async (data: ISProfileForm) => {
+    const userData = localStorage.getItem("user");
+    const currentUser = JSON.parse(userData!);
+
     const payload = {
       name: data.name,
       email: data.email,
@@ -85,6 +89,18 @@ const Profile = () => {
 
     try {
       const user: any = await updateProfile(payload);
+      const updatedUser = {
+        ...currentUser,
+        data: {
+          ...currentUser.data,
+          user: {
+            ...currentUser.data.user,
+            name: user?.data?.data?.user?.name,
+            email: user?.data?.data?.user?.email,
+            pic: user?.data?.data?.user?.pic,
+          },
+        },
+      };
       if (user?.data?.status) {
         setToast({
           ...toast,
@@ -92,9 +108,11 @@ const Profile = () => {
           appearence: true,
           type: "success",
         });
-        // dispatch(setUser(user?.data));
-        // localStorage.setItem("user", JSON.stringify(user?.data));
-        navigate("/");
+        dispatch(setUser(updatedUser));
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
       }
       if (user?.error) {
         setToast({

@@ -32,6 +32,8 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     }
   );
 
+  newUser.password = undefined;
+
   // 4) Send Response
   res.status(200).json({
     status: "success",
