@@ -8,7 +8,7 @@ router.use(authController.protect);
 
 // CHAT ROUTES
 router.route("/").post(chatController.createChat);
-// router.route("/:id").get(chatController.getChat);
+router.route("/:id").get(chatController.getChat);
 
 // GROUP CHAT ROUTES
 // router.route("/group").post(chatController.createGroupChat);

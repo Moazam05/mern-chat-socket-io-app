@@ -49,3 +49,21 @@ exports.createChat = catchAsync(async (req, res, next) => {
     });
   }
 });
+
+exports.getChat = catchAsync(async (req, res, next) => {
+  const chat = await Chat.findById(req.params.id)
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password")
+    .populate("latestMessage")
+    .sort({ updatedAt: -1 });
+
+  const FullChat = await User.populate(chat, {
+    path: "latestMessage.sender",
+    select: "name email pic",
+  });
+
+  res.status(200).json({
+    status: "success",
+    chat: FullChat,
+  });
+});
