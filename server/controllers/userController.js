@@ -42,3 +42,34 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getAllUsers = catchAsync(async (req, res, next) => {
+  const query = req.query.search;
+
+  // User search based on name or email
+  let filter = {};
+
+  if (query) {
+    filter = {
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+      ],
+    };
+  }
+
+  const users = await User.find(filter);
+
+  // Remove password from response
+  users.forEach((user) => {
+    user.password = undefined;
+  });
+
+  res.status(200).json({
+    status: "success",
+    results: users.length,
+    data: {
+      users,
+    },
+  });
+});
