@@ -33,3 +33,5 @@ export const selectedUserName = (state: RootState) =>
   state.auth?.user?.data?.user?.name;
 export const selectedUserEmail = (state: RootState) =>
   state.auth?.user?.data?.user?.email;
+export const selectedUserAvatar = (state: RootState) =>
+  state.auth?.user?.data?.user?.pic;

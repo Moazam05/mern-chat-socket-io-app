@@ -6,6 +6,7 @@ import ProtectedRoutes from "./routes/ProtectedRoutes";
 import Home from "./views/Home";
 import NotFound from "./views/NotFound";
 import Chat from "./views/Chat";
+import Profile from "./views/Profile";
 
 const App = () => {
   return (
@@ -41,6 +42,14 @@ const App = () => {
           element={
             <ProtectedRoutes>
               <Chat />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoutes>
+              <Profile />
             </ProtectedRoutes>
           }
         />
