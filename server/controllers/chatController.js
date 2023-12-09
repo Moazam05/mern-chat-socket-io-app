@@ -175,3 +175,38 @@ exports.addToGroupChat = catchAsync(async (req, res, next) => {
     chat: FullChat,
   });
 });
+
+exports.removeFromGroupChat = catchAsync(async (req, res, next) => {
+  const { userId } = req.body;
+
+  if (!userId) {
+    return next(new AppError("Please provide a user id", 400));
+  }
+
+  const chat = await Chat.findById(req.params.id);
+
+  if (!chat) {
+    return next(new AppError("No chat found with that id", 404));
+  }
+
+  if (chat.groupAdmin.toString() !== req.user._id.toString()) {
+    return next(new AppError("You are not the admin of this group", 400));
+  }
+
+  if (!chat.users.includes(userId)) {
+    return next(new AppError("User not in this group", 400));
+  }
+
+  const index = chat.users.indexOf(userId);
+  chat.users.splice(index, 1);
+  await chat.save();
+
+  const FullChat = await Chat.findById(chat._id)
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password");
+
+  res.status(200).json({
+    status: "success",
+    chat: FullChat,
+  });
+});
