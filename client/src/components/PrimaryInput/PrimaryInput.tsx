@@ -32,6 +32,7 @@ interface PrimaryInputProps {
   loading?: boolean;
   borderRadius?: string;
   ref?: React.RefObject<HTMLInputElement>;
+  background?: string;
 }
 
 const PrimaryInput: React.FC<PrimaryInputProps> = ({
@@ -59,6 +60,7 @@ const PrimaryInput: React.FC<PrimaryInputProps> = ({
   autoFocus,
   loading = false,
   borderRadius,
+  background,
   ref,
 }) => {
   return (
@@ -112,7 +114,7 @@ const PrimaryInput: React.FC<PrimaryInputProps> = ({
       InputProps={{
         sx: {
           borderRadius: borderRadius ? borderRadius : "5px",
-          background: "#fff",
+          background: background ? background : "#fff",
           height: multiline ? "auto" : "50px",
           border: "none",
         },
