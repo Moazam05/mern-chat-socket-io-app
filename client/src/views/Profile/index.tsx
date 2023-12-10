@@ -25,6 +25,8 @@ import ToastAlert from "../../components/ToastAlert/ToastAlert";
 import { Heading, SubHeading } from "../../components/Heading";
 import DotLoader from "../../components/Spinner/dotLoader";
 import PrimaryInput from "../../components/PrimaryInput/PrimaryInput";
+// React Icons
+import { TbArrowBack } from "react-icons/tb";
 
 // Yup Validation Schema
 const profileSchema = Yup.object().shape({
@@ -153,7 +155,30 @@ const Profile = () => {
   };
 
   return (
-    <>
+    <Box sx={{ background: "#f3f4f6" }}>
+      <Box sx={{ position: "relative" }}>
+        <Tooltip title="Back" placement="right">
+          <Box
+            sx={{
+              position: "absolute",
+              background: "#334155",
+              color: "#fff",
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              cursor: "pointer",
+              top: "15px",
+              left: "15px",
+            }}
+            onClick={() => navigate("/")}
+          >
+            <TbArrowBack size={20} />
+          </Box>
+        </Tooltip>
+      </Box>
       <Box
         sx={{
           display: "flex",
@@ -278,7 +303,7 @@ const Profile = () => {
         message={toast.message}
         handleClose={handleCloseToast}
       />
-    </>
+    </Box>
   );
 };
 
