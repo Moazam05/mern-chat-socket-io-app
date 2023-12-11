@@ -49,7 +49,7 @@ const SideBar = () => {
   };
 
   // GET CHATS
-  const { data: getChat } = useGetChatQuery(
+  const { data: getChat, isLoading: getChatLoading } = useGetChatQuery(
     {},
     {
       refetchOnMountOrArgChange: true,
@@ -58,13 +58,7 @@ const SideBar = () => {
 
   useEffect(() => {
     if (getChat?.chats) {
-      setChats((prevChats: any) => {
-        const uniqueChatIds = new Set(prevChats.map((chat: any) => chat._id));
-        const newChats = getChat.chats.filter(
-          (chat: any) => !uniqueChatIds.has(chat._id)
-        );
-        return [...prevChats, ...newChats];
-      });
+      setChats(getChat.chats);
     }
   }, [getChat, userId]);
 
@@ -173,7 +167,7 @@ const SideBar = () => {
           onChange={handleSearch}
           value={searchText}
         />
-        {isLoading ? (
+        {isLoading || getChatLoading ? (
           <Box
             sx={{
               display: "flex",
