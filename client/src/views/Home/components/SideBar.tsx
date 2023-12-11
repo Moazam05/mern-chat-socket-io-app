@@ -49,21 +49,24 @@ const SideBar = () => {
   };
 
   // GET CHATS
-  const { data: getChat, isLoading: getChatLoading } =
-    useGetChatQuery(selectedChat);
+  const { data: getChat } = useGetChatQuery(
+    {},
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
   useEffect(() => {
-    if (getChat?.chat) {
-      const isChatExist = chats.some(
-        (existingChat: { _id: any }) => existingChat._id === getChat?.chat._id
-      );
-
-      if (!isChatExist) {
-        setChats((prevChats: any) => [...prevChats, getChat?.chat]);
-      }
+    if (getChat?.chats) {
+      setChats((prevChats: any) => {
+        const uniqueChatIds = new Set(prevChats.map((chat: any) => chat._id));
+        const newChats = getChat.chats.filter(
+          (chat: any) => !uniqueChatIds.has(chat._id)
+        );
+        return [...prevChats, ...newChats];
+      });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedChat]);
+  }, [getChat, userId]);
 
   // CREATE CHAT
   const [createChat, { isLoading: chatLoading }] = useCreateChatMutation();
@@ -76,6 +79,7 @@ const SideBar = () => {
       const chat: any = await createChat(payload);
 
       if (chat?.data?.status) {
+        setSearchText("");
         const newChat = chat?.data?.chat;
         const isChatExist = chats.some(
           (existingChat: { _id: any }) => existingChat._id === newChat._id
@@ -86,7 +90,6 @@ const SideBar = () => {
           setSelectedUser(newChat);
           setSelectedChat(newChat._id);
           setChats((prevChats: any) => [...prevChats, newChat]);
-          setSearchText("");
         }
       }
 
@@ -301,6 +304,7 @@ const SideBar = () => {
                       setSelectedChat(chat._id);
                       alert("Chat Selected");
                     }}
+                    key={friend._id}
                   >
                     <Box
                       sx={{

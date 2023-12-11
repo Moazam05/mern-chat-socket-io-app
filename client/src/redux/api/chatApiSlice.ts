@@ -13,9 +13,9 @@ export const chatApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["Chats"],
     }),
     getChat: builder.query({
-      query: (id) => {
+      query: () => {
         return {
-          url: `chats/${id}`,
+          url: "chats",
           method: "GET",
         };
       },
