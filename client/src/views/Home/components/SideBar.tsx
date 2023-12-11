@@ -16,6 +16,8 @@ import { Heading, SubHeading } from "../../../components/Heading";
 import SearchBar from "../../../components/SearchBar";
 // React Icons
 import { BiLogOutCircle } from "react-icons/bi";
+import { useGetAllUsersQuery } from "../../../redux/api/userApiSlice";
+import DotLoader from "../../../components/Spinner/dotLoader";
 
 const dummyFriends = [
   {
@@ -46,6 +48,9 @@ const SideBar = () => {
     let value = event.target.value.toLowerCase();
     setSearchText(value);
   };
+
+  // SEARCH API QUERY
+  const { data, isLoading } = useGetAllUsersQuery(searchText);
 
   return (
     <Box sx={{ padding: "20px" }}>
@@ -101,6 +106,90 @@ const SideBar = () => {
           onChange={handleSearch}
           value={searchText}
         />
+        {isLoading ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "20px",
+            }}
+          >
+            <DotLoader color="#828389" />
+          </Box>
+        ) : searchText?.length > 0 && data?.users?.length === 0 ? (
+          <Heading
+            sx={{
+              fontSize: "15px",
+              color: "#828389",
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "20px",
+            }}
+          >
+            No user found
+          </Heading>
+        ) : (
+          searchText?.length > 0 &&
+          data?.users?.map((user: any, index: number) => {
+            return (
+              <Box
+                sx={{
+                  padding: index === 0 ? "12px 0px" : "0 0 12px 0",
+                  marginTop: index === 0 ? "10px" : "0",
+                  display: "flex",
+                  background: "#fff",
+                  borderRadius: "5px",
+                }}
+                key={index}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    height: "50px",
+                    width: "100%",
+                    padding: "0 15px",
+                    "&:hover": {
+                      background: "#f3f4f6",
+                      borderRadius: "5px",
+                      cursor: "pointer",
+                      margin: "0 7px",
+                      padding: "0 8px",
+                    },
+                  }}
+                >
+                  <img
+                    src={user.pic}
+                    alt={user.name}
+                    style={{
+                      width: "35px",
+                      height: "35px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                  <Box>
+                    <SubHeading>{user.name}</SubHeading>
+                    <SubHeading
+                      sx={{
+                        fontSize: "12px",
+                      }}
+                    >
+                      Email:{" "}
+                      <span
+                        style={{
+                          fontWeight: "normal",
+                        }}
+                      >
+                        {user.email}
+                      </span>
+                    </SubHeading>
+                  </Box>
+                </Box>
+              </Box>
+            );
+          })
+        )}
       </Box>
 
       {dummyFriends.map((friend, index) => {
