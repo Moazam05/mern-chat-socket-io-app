@@ -25,24 +25,35 @@ import {
 } from "../../../redux/api/chatApiSlice";
 import ToastAlert from "../../../components/ToastAlert/ToastAlert";
 import Spinner from "../../../components/Spinner";
+import { uniqBy } from "lodash";
 
-const SideBar = () => {
+interface SideBarProps {
+  searchText: string;
+  setSearchText: (value: string) => void;
+  selectedChat: any;
+  setSelectedChat: (value: any) => void;
+  chats: any;
+  setChats: (value: any) => void;
+}
+
+const SideBar: React.FC<SideBarProps> = ({
+  searchText,
+  setSearchText,
+  selectedChat,
+  setSelectedChat,
+  chats,
+  setChats,
+}) => {
   const navigate = useNavigate();
   const userName = useTypedSelector(selectedUserName);
   const userAvatar = useTypedSelector(selectedUserAvatar);
   const userId = useTypedSelector(selectedUserId);
   // state
-  const [searchText, setSearchText] = useState<string>("");
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [selectedChat, setSelectedChat] = useState<any>(null);
-  const [chats, setChats] = useState<any>([]);
   const [toast, setToast] = useState({
     message: "",
     appearence: false,
     type: "",
   });
-
-  // console.log("selectedChat", selectedChat);
 
   const handleCloseToast = () => {
     setToast({ ...toast, appearence: false });
@@ -60,6 +71,7 @@ const SideBar = () => {
     if (getChat?.chats) {
       setChats(getChat.chats);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getChat, userId]);
 
   // CREATE CHAT
@@ -75,16 +87,9 @@ const SideBar = () => {
       if (chat?.data?.status) {
         setSearchText("");
         const newChat = chat?.data?.chat;
-        const isChatExist = chats.some(
-          (existingChat: { _id: any }) => existingChat._id === newChat._id
-        );
 
-        if (!isChatExist) {
-          // Chat does not exist, add it to both selectedUser and chats arrays
-          setSelectedUser(newChat);
-          setSelectedChat(newChat._id);
-          setChats((prevChats: any) => [...prevChats, newChat]);
-        }
+        setSelectedChat(newChat._id);
+        setChats((prevChats: any) => [...prevChats, newChat]);
       }
 
       if (chat?.error) {
@@ -113,14 +118,17 @@ const SideBar = () => {
   // SEARCH API QUERY
   const { data, isLoading } = useGetAllUsersQuery(searchText);
 
+  const chatsWithoutDuplicates = uniqBy(chats, "_id");
+
   return (
-    <Box sx={{ padding: "20px" }}>
+    <Box sx={{ padding: "20px 0" }}>
       <Box
         sx={{
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
           gap: "10px",
+          padding: "0 20px",
         }}
       >
         <img
@@ -158,7 +166,7 @@ const SideBar = () => {
           </Tooltip>
         </Box>
       </Box>
-      <Box sx={{ margin: "25px 0" }}>
+      <Box sx={{ margin: "25px 0", padding: "0 20px" }}>
         <SearchBar
           placeholder="Search Friends"
           color="#fff"
@@ -278,25 +286,28 @@ const SideBar = () => {
       </Box>
 
       {/* Chat Friend List */}
-      {chats.length > 0 &&
-        chats.map((chat: any, index: number) => (
+      {chatsWithoutDuplicates.length > 0 &&
+        chatsWithoutDuplicates.map((chat: any, index: number) => (
           <Box key={index}>
             {chat?.users
               ?.filter((user: any) => user._id !== userId)
               .map((friend: any) => {
+                const isSelected = selectedChat === chat._id;
+
                 return (
                   <Box
                     sx={{
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      margin: "20px 0",
                       cursor: "pointer",
-                      background: selectedChat === friend._id ? "orange" : "",
+                      borderRadius: "5px",
+                      background: isSelected ? "rgb(49 150 147)" : "",
+                      margin: isSelected ? "10px 10px" : "20px 0",
+                      padding: isSelected ? "10px" : "0 20px",
                     }}
                     onClick={() => {
                       setSelectedChat(chat._id);
-                      alert("Chat Selected");
                     }}
                     key={friend._id}
                   >
@@ -316,7 +327,9 @@ const SideBar = () => {
                           borderRadius: "50%",
                         }}
                       />
-                      <SubHeading sx={{ color: "#513dea" }}>
+                      <SubHeading
+                        sx={{ color: isSelected ? "#fff" : "#513dea" }}
+                      >
                         {friend?.name}
                       </SubHeading>
                     </Box>
@@ -331,14 +344,14 @@ const SideBar = () => {
                       <Box
                         sx={{
                           fontSize: "12px",
-                          color: "gray",
+                          color: isSelected ? "#fff" : "gray",
                         }}
                       >
                         10:45 PM
                       </Box>
                       <Box
                         sx={{
-                          background: "#513dea",
+                          background: isSelected ? "#fff" : "#513dea",
                           borderRadius: "50%",
                           width: "15px",
                           height: "15px",
@@ -346,7 +359,7 @@ const SideBar = () => {
                           alignItems: "center",
                           justifyContent: "center",
                           fontSize: "10px",
-                          color: "#fff",
+                          color: isSelected ? "#000" : "#fff",
                         }}
                       >
                         {index + 1}
@@ -358,29 +371,35 @@ const SideBar = () => {
           </Box>
         ))}
 
-      <Tooltip title="Logout" placement="right">
-        <Box
-          sx={{
-            position: "fixed",
-            bottom: "10px",
-            background: "#334155",
-            color: "#fff",
-            width: "35px",
-            height: "35px",
-            borderRadius: "50%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            cursor: "pointer",
-          }}
-          onClick={() => {
-            localStorage.removeItem("user");
-            navigate("/login");
-          }}
-        >
-          <BiLogOutCircle />
-        </Box>
-      </Tooltip>
+      <Box
+        sx={{
+          padding: "0 20px",
+        }}
+      >
+        <Tooltip title="Logout" placement="right">
+          <Box
+            sx={{
+              position: "fixed",
+              bottom: "10px",
+              background: "#334155",
+              color: "#fff",
+              width: "35px",
+              height: "35px",
+              borderRadius: "50%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              localStorage.removeItem("user");
+              navigate("/login");
+            }}
+          >
+            <BiLogOutCircle />
+          </Box>
+        </Tooltip>
+      </Box>
       <ToastAlert
         appearence={toast.appearence}
         type={toast.type}
