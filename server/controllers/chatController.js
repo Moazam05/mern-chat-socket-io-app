@@ -210,3 +210,23 @@ exports.removeFromGroupChat = catchAsync(async (req, res, next) => {
     chat: FullChat,
   });
 });
+
+exports.getChats = catchAsync(async (req, res, next) => {
+  const chats = await Chat.find({
+    users: { $in: [req.user._id] },
+  })
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password")
+    .populate("latestMessage")
+    .sort({ updatedAt: -1 });
+
+  const FullChats = await User.populate(chats, {
+    path: "latestMessage.sender",
+    select: "name email pic",
+  });
+
+  res.status(200).json({
+    status: "success",
+    chats: FullChats,
+  });
+});

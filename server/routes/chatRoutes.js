@@ -7,7 +7,7 @@ const router = express.Router();
 router.use(authController.protect);
 
 // CHAT ROUTES
-router.route("/").post(chatController.createChat);
+router.route("/").post(chatController.createChat).get(chatController.getChats);
 router.route("/:id").get(chatController.getChat);
 
 // GROUP CHAT ROUTES
