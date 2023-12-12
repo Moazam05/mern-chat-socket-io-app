@@ -130,10 +130,6 @@ exports.renameGroupChat = catchAsync(async (req, res, next) => {
     return next(new AppError("No chat found with that id", 404));
   }
 
-  if (chat.groupAdmin.toString() !== req.user._id.toString()) {
-    return next(new AppError("You are not the admin of this group", 400));
-  }
-
   chat.chatName = chatName;
   await chat.save();
 
@@ -144,36 +140,29 @@ exports.renameGroupChat = catchAsync(async (req, res, next) => {
 });
 
 exports.addToGroupChat = catchAsync(async (req, res, next) => {
-  const { userId } = req.body;
+  const { userId: users } = req.body;
 
-  if (!userId) {
-    return next(new AppError("Please provide a user id", 400));
+  if (!users || users.length < 1) {
+    return next(new AppError("Please provide at least 1 users ", 400));
   }
 
+  const newUsers = [...users, req.user._id];
+
+  // 1) Only Admin can add users to group chat
   const chat = await Chat.findById(req.params.id);
-
-  if (!chat) {
-    return next(new AppError("No chat found with that id", 404));
-  }
-
   if (chat.groupAdmin.toString() !== req.user._id.toString()) {
     return next(new AppError("You are not the admin of this group", 400));
   }
 
-  if (chat.users.includes(userId)) {
-    return next(new AppError("User already in this group", 400));
-  }
-
-  chat.users.push(userId);
+  // 2) Update Chat with new users
+  chat.users = newUsers;
   await chat.save();
 
-  const FullChat = await Chat.findById(chat._id)
-    .populate("users", "-password")
-    .populate("groupAdmin", "-password");
-
+  // 3) Send Response
   res.status(200).json({
     status: "success",
-    chat: FullChat,
+    message: "Group chat updated successfully",
+    chat,
   });
 });
 

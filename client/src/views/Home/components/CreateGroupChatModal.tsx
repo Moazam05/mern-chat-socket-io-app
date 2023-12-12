@@ -1,5 +1,5 @@
 // React Imports
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
@@ -14,8 +14,14 @@ import * as Yup from "yup";
 import CustomAutocomplete from "../../../components/AutoComplete";
 import { useGetAllUsersQuery } from "../../../redux/api/userApiSlice";
 import ToastAlert from "../../../components/ToastAlert/ToastAlert";
-import { useCreateGroupChatMutation } from "../../../redux/api/chatApiSlice";
+import {
+  useAddMemberToGroupChatMutation,
+  useCreateGroupChatMutation,
+  useRenameGroupChatMutation,
+} from "../../../redux/api/chatApiSlice";
 import DotLoader from "../../../components/Spinner/dotLoader";
+import useTypedSelector from "../../../hooks/useTypedSelector";
+import { selectedUserId } from "../../../redux/auth/authSlice";
 
 const style = {
   position: "absolute" as "absolute",
@@ -37,6 +43,7 @@ export const groupChatSchema = Yup.object().shape({
 interface CreateGroupChatModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  chatData?: any;
 }
 
 interface ChatForm {
@@ -47,7 +54,9 @@ interface ChatForm {
 const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
   open,
   setOpen,
+  chatData,
 }) => {
+  const userId = useTypedSelector(selectedUserId);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [formValues, setFormValues] = useState<ChatForm>({
     chatName: "",
@@ -58,6 +67,7 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
     appearence: false,
     type: "",
   });
+  const [allUsers, setAllUsers] = useState<any>([]);
 
   const handleClose = () => setOpen(false);
   const handleCloseToast = () => {
@@ -67,9 +77,44 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
   // USERS API QUERY
   const { data, isLoading } = useGetAllUsersQuery({});
 
-  // Group Chat Api Bind
+  useEffect(() => {
+    if (data?.users) {
+      setAllUsers(data?.users);
+    }
+  }, [data]);
+
+  // Update Group Chat
+  useEffect(() => {
+    if (chatData) {
+      // Remove Admin from allUsers
+      const removedAdmin = chatData?.users?.filter(
+        (user: any) => user._id !== chatData?.groupAdmin?._id
+      );
+
+      setFormValues({
+        chatName: chatData?.chatName,
+        addPeople: removedAdmin,
+      });
+    } else {
+      setFormValues({
+        chatName: "",
+        addPeople: [],
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatData, data]);
+
+  // Create Group Chat Api Bind
   const [createGroupChat, { isLoading: groupChatLoading }] =
     useCreateGroupChatMutation();
+
+  // Rename Group Chat
+  const [renameGroupChat, { isLoading: renameGroupChatLoading }] =
+    useRenameGroupChatMutation();
+
+  // Add People to Group Chat
+  const [addPeopleToGroupChat, { isLoading: addPeopleToGroupChatLoading }] =
+    useAddMemberToGroupChatMutation();
 
   const GroupChatHandler = async (data: ChatForm) => {
     const idArray = data?.addPeople.map((person: any) => person._id);
@@ -78,6 +123,97 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
       chatName: data?.chatName,
       users: idArray,
     };
+
+    // Update Group Name
+    if (chatData && chatData?.groupAdmin?._id !== userId) {
+      const payload = {
+        chatName: data?.chatName,
+      };
+      try {
+        const groupChat: any = await renameGroupChat({
+          body: payload,
+          chatId: chatData?._id,
+        });
+        if (groupChat?.data?.status) {
+          setToast({
+            ...toast,
+            message: "Group Name Changed Successfully",
+            appearence: true,
+            type: "success",
+          });
+          handleClose();
+        }
+        if (groupChat?.error) {
+          setToast({
+            ...toast,
+            message: groupChat?.error?.data?.message,
+            appearence: true,
+            type: "error",
+          });
+        }
+      } catch (error) {
+        console.error("Rename Group Chat Error:", error);
+        setToast({
+          ...toast,
+          message: "Something went wrong",
+          appearence: true,
+          type: "error",
+        });
+      }
+      return;
+    }
+
+    // Create Group Chat & Name
+    if (chatData && chatData?.groupAdmin?._id === userId) {
+      const chatNamePayload = {
+        chatName: data?.chatName,
+      };
+
+      const usersPayload = {
+        userId: idArray,
+      };
+
+      try {
+        // Change Group Name
+        const groupNameChat: any = await renameGroupChat({
+          body: chatNamePayload,
+          chatId: chatData?._id,
+        });
+        // Update Group Members
+        if (groupNameChat?.data?.status) {
+          const groupChat: any = await addPeopleToGroupChat({
+            userId: usersPayload,
+            chatId: chatData?._id,
+          });
+          if (groupChat?.data?.status) {
+            setToast({
+              ...toast,
+              message: groupChat?.data?.message,
+              appearence: true,
+              type: "success",
+            });
+            handleClose();
+          }
+          if (groupChat?.error) {
+            setToast({
+              ...toast,
+              message: groupChat?.error?.data?.message,
+              appearence: true,
+              type: "error",
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Rename Group Chat Error:", error);
+        setToast({
+          ...toast,
+          message: "Something went wrong",
+          appearence: true,
+          type: "error",
+        });
+      }
+      return;
+    }
 
     try {
       const groupChat: any = await createGroupChat(payload);
@@ -134,7 +270,7 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
               id="modal-modal-title"
               variant="h6"
             >
-              Create Group Chat
+              {chatData ? "Update Group Chat" : "Create Group Chat"}
             </Typography>
             <Box sx={{ cursor: "pointer" }}>
               <IconButton onClick={handleClose}>
@@ -149,6 +285,7 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
                 GroupChatHandler(values);
               }}
               validationSchema={groupChatSchema}
+              enableReinitialize
             >
               {(props: FormikProps<ChatForm>) => {
                 const { values, touched, errors, handleBlur, handleChange } =
@@ -178,33 +315,35 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
                         onBlur={handleBlur}
                       />
                     </Box>
-                    <Box sx={{ minHeight: "95px" }}>
-                      <SubHeading sx={{ marginBottom: "5px" }}>
-                        Add People
-                      </SubHeading>
-                      <CustomAutocomplete
-                        label="Add People"
-                        name="addPeople"
-                        options={data?.users}
-                        formik={props}
-                        isLoading={isLoading}
-                        placeholder="Add People"
-                      />
-                      {errors.addPeople && touched.addPeople ? (
-                        <Box
-                          sx={{
-                            color: "#D32F1B",
-                            fontSize: "12px",
-                            fontWeight: "400",
-                            marginTop: "5px",
-                          }}
-                        >
-                          Minimum 1 People are required
-                        </Box>
-                      ) : (
-                        ""
-                      )}
-                    </Box>
+                    {chatData?.groupAdmin?._id === userId && (
+                      <Box sx={{ minHeight: "95px" }}>
+                        <SubHeading sx={{ marginBottom: "5px" }}>
+                          Add People
+                        </SubHeading>
+                        <CustomAutocomplete
+                          label="Add People"
+                          name="addPeople"
+                          options={allUsers}
+                          formik={props}
+                          isLoading={isLoading}
+                          placeholder="Add People"
+                        />
+                        {errors.addPeople && touched.addPeople ? (
+                          <Box
+                            sx={{
+                              color: "#D32F1B",
+                              fontSize: "12px",
+                              fontWeight: "400",
+                              marginTop: "5px",
+                            }}
+                          >
+                            Minimum 1 People are required
+                          </Box>
+                        ) : (
+                          ""
+                        )}
+                      </Box>
+                    )}
                     <Box
                       sx={{
                         display: "flex",
@@ -225,8 +364,12 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
                           lineHeight: "0",
                         }}
                       >
-                        {groupChatLoading ? (
+                        {groupChatLoading ||
+                        renameGroupChatLoading ||
+                        addPeopleToGroupChatLoading ? (
                           <DotLoader color="#334155" size={12} />
+                        ) : chatData ? (
+                          "Update Group Chat"
                         ) : (
                           "Create Group Chat"
                         )}

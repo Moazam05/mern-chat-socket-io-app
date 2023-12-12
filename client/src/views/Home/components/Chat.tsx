@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Avatar, Box, Divider } from "@mui/material";
+import { Avatar, Box, Divider, Tooltip } from "@mui/material";
 import { SubHeading } from "../../../components/Heading";
 import PrimaryInput from "../../../components/PrimaryInput/PrimaryInput";
 import { LuSendHorizonal } from "react-icons/lu";
 import useTypedSelector from "../../../hooks/useTypedSelector";
 import { selectedUserId } from "../../../redux/auth/authSlice";
+import { GoPencil } from "react-icons/go";
+import CreateGroupChatModal from "./CreateGroupChatModal";
 
 const dummyChat = [
   {
@@ -33,6 +35,9 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
   const userId = useTypedSelector(selectedUserId);
   const [newMessage, setNewMessage] = useState<string>("");
   const [userData, setUserData] = useState<any>({});
+  const [openModal, setOpenModal] = useState<boolean>(false);
+
+  const handleOpenModal = () => setOpenModal(true);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -99,16 +104,31 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: "10px",
-              marginBottom: "15px",
+              justifyContent: "space-between",
             }}
           >
-            <Avatar sx={{ width: 45, height: 45 }}>
-              {userData?.chatName[0]}
-            </Avatar>
-            <SubHeading sx={{ color: "#000)" }}>
-              {userData?.chatName}
-            </SubHeading>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                marginBottom: "15px",
+              }}
+            >
+              <Avatar sx={{ width: 45, height: 45 }}>
+                {userData?.chatName[0]}
+              </Avatar>
+              <SubHeading sx={{ color: "#000)" }}>
+                {userData?.chatName}
+              </SubHeading>
+            </Box>
+            <Box>
+              <Tooltip title="Edit Group Chat" placement="right">
+                <Box sx={{ cursor: "pointer" }} onClick={handleOpenModal}>
+                  <GoPencil />
+                </Box>
+              </Tooltip>
+            </Box>
           </Box>
         )}
 
@@ -194,6 +214,11 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
           </Box>
         </form>
       </Box>
+      <CreateGroupChatModal
+        open={openModal}
+        setOpen={setOpenModal}
+        chatData={userData}
+      />
     </Box>
   );
 };
