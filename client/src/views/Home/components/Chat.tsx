@@ -1,8 +1,10 @@
-import { useState } from "react";
-import { Box, Divider } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Avatar, Box, Divider } from "@mui/material";
 import { SubHeading } from "../../../components/Heading";
 import PrimaryInput from "../../../components/PrimaryInput/PrimaryInput";
 import { LuSendHorizonal } from "react-icons/lu";
+import useTypedSelector from "../../../hooks/useTypedSelector";
+import { selectedUserId } from "../../../redux/auth/authSlice";
 
 const dummyChat = [
   {
@@ -23,14 +25,33 @@ const dummyChat = [
   },
 ];
 
-const Chat = () => {
+interface ChatProps {
+  selectedChatInfo: any;
+}
+
+const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
+  const userId = useTypedSelector(selectedUserId);
   const [newMessage, setNewMessage] = useState<string>("");
+  const [userData, setUserData] = useState<any>({});
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
     console.log(newMessage);
     setNewMessage("");
   };
+
+  useEffect(() => {
+    if (selectedChatInfo) {
+      if (!selectedChatInfo?.isGroupChat) {
+        const filteredUsers = selectedChatInfo?.users?.filter(
+          (user: any) => user._id !== userId
+        );
+        setUserData({ ...selectedChatInfo, users: filteredUsers });
+      } else {
+        setUserData(selectedChatInfo);
+      }
+    }
+  }, [selectedChatInfo, userId]);
 
   return (
     <Box
@@ -39,33 +60,58 @@ const Chat = () => {
       }}
     >
       <Box>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            marginBottom: "15px",
-          }}
-        >
-          <img
-            src="https://www.w3schools.com/howto/img_avatar.png"
-            alt="Avatar"
-            style={{
-              width: "50px",
-              height: "50px",
-              borderRadius: "50%",
-            }}
-          />
-          <SubHeading sx={{ color: "#000)" }}>John Doe</SubHeading>
+        {/* Simple Chat */}
+        {!selectedChatInfo?.isGroupChat &&
+          userData?.users?.map((user: any, index: number) => (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                marginBottom: "15px",
+              }}
+              key={user._id}
+            >
+              <img
+                src={user?.pic}
+                alt="Avatar"
+                style={{
+                  width: "45px",
+                  height: "45px",
+                  borderRadius: "50%",
+                }}
+              />
+              <SubHeading sx={{ color: "#000)" }}>{user?.name}</SubHeading>
+              <Box
+                sx={{
+                  background: "rgb(47 178 102)",
+                  borderRadius: "50%",
+                  width: "10px",
+                  height: "10px",
+                }}
+              ></Box>
+            </Box>
+          ))}
+
+        {/* Group Chat */}
+        {selectedChatInfo?.isGroupChat && userData?.chatName && (
           <Box
             sx={{
-              background: "rgb(47 178 102)",
-              borderRadius: "50%",
-              width: "10px",
-              height: "10px",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              marginBottom: "15px",
             }}
-          ></Box>
-        </Box>
+          >
+            <Avatar sx={{ width: 45, height: 45 }}>
+              {userData?.chatName[0]}
+            </Avatar>
+            <SubHeading sx={{ color: "#000)" }}>
+              {userData?.chatName}
+            </SubHeading>
+          </Box>
+        )}
+
         <Divider />
       </Box>
       <Box

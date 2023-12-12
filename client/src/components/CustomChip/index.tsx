@@ -58,7 +58,7 @@ const CustomChip = ({ label }: Props) => {
   };
 
   const chipStyle = {
-    maxWidth: "110px",
+    maxWidth: "90px",
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",

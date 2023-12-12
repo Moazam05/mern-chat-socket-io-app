@@ -11,6 +11,7 @@ const Home = () => {
   // States for SideBar
   const [searchText, setSearchText] = useState<string>("");
   const [selectedChat, setSelectedChat] = useState<any>(null);
+  const [selectedChatInfo, setSelectedChatInfo] = useState<any>(null);
   const [chats, setChats] = useState<any>([]);
 
   return (
@@ -29,6 +30,7 @@ const Home = () => {
           setSelectedChat={setSelectedChat}
           chats={chats}
           setChats={setChats}
+          setSelectedChatInfo={setSelectedChatInfo}
         />
       </Box>
       <Box sx={{ flex: 2, background: "#fff" }}>
@@ -52,11 +54,11 @@ const Home = () => {
               }}
             >
               <MdLibraryBooks fontSize={20} />
-              No Conversation Selected
+              Click on a user to start chatting
             </SubHeading>
           </Box>
         ) : (
-          <Chat />
+          <Chat selectedChatInfo={selectedChatInfo} />
         )}
       </Box>
       <Box sx={{ flex: 1, background: "#f3f4f6" }}>
@@ -84,7 +86,7 @@ const Home = () => {
             </SubHeading>
           </Box>
         ) : (
-          <ChatInfo />
+          <ChatInfo selectedChatInfo={selectedChatInfo} />
         )}
       </Box>
     </Box>

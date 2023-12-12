@@ -36,6 +36,7 @@ interface SideBarProps {
   setSelectedChat: (value: any) => void;
   chats: any;
   setChats: (value: any) => void;
+  setSelectedChatInfo: (value: any) => void;
 }
 
 const SideBar: React.FC<SideBarProps> = ({
@@ -45,6 +46,7 @@ const SideBar: React.FC<SideBarProps> = ({
   setSelectedChat,
   chats,
   setChats,
+  setSelectedChatInfo,
 }) => {
   const navigate = useNavigate();
   const userName = useTypedSelector(selectedUserName);
@@ -327,6 +329,7 @@ const SideBar: React.FC<SideBarProps> = ({
                     }}
                     onClick={() => {
                       setSelectedChat(chat._id);
+                      setSelectedChatInfo(chat);
                     }}
                     key={friend._id}
                   >
