@@ -44,6 +44,7 @@ interface CreateGroupChatModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   chatData?: any;
+  newChat?: boolean;
 }
 
 interface ChatForm {
@@ -55,6 +56,7 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
   open,
   setOpen,
   chatData,
+  newChat,
 }) => {
   const userId = useTypedSelector(selectedUserId);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -101,8 +103,7 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
         addPeople: [],
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatData, data]);
+  }, [chatData]);
 
   // Create Group Chat Api Bind
   const [createGroupChat, { isLoading: groupChatLoading }] =
@@ -315,7 +316,7 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
                         onBlur={handleBlur}
                       />
                     </Box>
-                    {chatData?.groupAdmin?._id === userId && (
+                    {(newChat || chatData?.groupAdmin?._id === userId) && (
                       <Box sx={{ minHeight: "95px" }}>
                         <SubHeading sx={{ marginBottom: "5px" }}>
                           Add People

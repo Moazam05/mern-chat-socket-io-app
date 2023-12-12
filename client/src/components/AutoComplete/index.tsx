@@ -30,12 +30,21 @@ const filterOptions = createFilterOptions({
 const CustomAutocomplete = (props: Props) => {
   const { formik, name, placeholder }: any = props;
 
+  const filteredOptions = formik
+    ? props.options.filter(
+        (option: any) =>
+          !formik.values.addPeople.some(
+            (selectedUser: any) => selectedUser._id === option._id
+          )
+      )
+    : props.options;
+
   return (
     <>
       <Autocomplete
         id="tags-outlined"
         fullWidth
-        options={props.options || []}
+        options={filteredOptions || []}
         value={formik ? formik?.values[name] || [] : props.value || []}
         onChange={(event, value) => {
           formik

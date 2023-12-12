@@ -429,7 +429,11 @@ const SideBar: React.FC<SideBarProps> = ({
           </Box>
         </Tooltip>
       </Box>
-      <CreateGroupChatModal open={openModal} setOpen={setOpenModal} />
+      <CreateGroupChatModal
+        open={openModal}
+        setOpen={setOpenModal}
+        newChat={true}
+      />
       <ToastAlert
         appearence={toast.appearence}
         type={toast.type}
