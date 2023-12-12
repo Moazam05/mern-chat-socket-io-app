@@ -214,24 +214,19 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
                     >
                       <Button
                         type="submit"
-                        variant="contained"
+                        variant="outlined"
                         fullWidth
                         disabled={groupChatLoading}
                         sx={{
                           padding: "5px 30px",
                           textTransform: "capitalize",
                           margin: "10px 0 5px 0",
-                          background: "#334155",
                           height: "40px",
-                          color: "#fff",
                           lineHeight: "0",
-                          "&:hover": {
-                            background: "#334155",
-                          },
                         }}
                       >
                         {groupChatLoading ? (
-                          <DotLoader color="#fff" size={12} />
+                          <DotLoader color="#334155" size={12} />
                         ) : (
                           "Create Group Chat"
                         )}

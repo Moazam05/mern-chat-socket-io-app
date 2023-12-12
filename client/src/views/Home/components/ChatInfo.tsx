@@ -22,8 +22,6 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ selectedChatInfo }) => {
     }
   }, [selectedChatInfo, userId]);
 
-  console.log("userData", userData);
-
   return (
     <Box sx={{ padding: "20px" }}>
       {/* For User */}
@@ -99,6 +97,58 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ selectedChatInfo }) => {
             }}
           >
             <SubHeading>Group Members</SubHeading>
+            <Box>
+              {userData?.users?.map((user: any) => (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "10px",
+                    height: "50px",
+                    width: "100%",
+                    margin: "10px 0",
+                  }}
+                  key={user._id}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      flexDirection: "row",
+                    }}
+                  >
+                    <img
+                      src={user.pic}
+                      alt={user.name}
+                      style={{
+                        width: "35px",
+                        height: "35px",
+                        borderRadius: "50%",
+                      }}
+                    />
+                    <Box>
+                      <SubHeading>{user.name}</SubHeading>
+                      <SubHeading
+                        sx={{
+                          fontSize: "12px",
+                        }}
+                      >
+                        Email:{" "}
+                        <span
+                          style={{
+                            fontWeight: "normal",
+                          }}
+                        >
+                          {user.email}
+                        </span>
+                      </SubHeading>
+                    </Box>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
           </Box>
         </>
       )}
