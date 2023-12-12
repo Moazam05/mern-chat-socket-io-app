@@ -31,7 +31,7 @@ const style = {
 
 export const groupChatSchema = Yup.object().shape({
   chatName: Yup.string().required("Chat Name is required").nullable(),
-  addPeople: Yup.array().required("Minimum 2 People are required").min(2),
+  addPeople: Yup.array().required("Minimum 2 People are required").min(1),
 });
 
 interface CreateGroupChatModalProps {
@@ -199,7 +199,7 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
                             marginTop: "5px",
                           }}
                         >
-                          Minimum 2 People are required
+                          Minimum 1 People are required
                         </Box>
                       ) : (
                         ""
@@ -233,7 +233,7 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
                         {groupChatLoading ? (
                           <DotLoader color="#fff" size={12} />
                         ) : (
-                          "Create Chat"
+                          "Create Group Chat"
                         )}
                       </Button>
                     </Box>

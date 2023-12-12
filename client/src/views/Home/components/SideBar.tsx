@@ -11,7 +11,7 @@ import {
   selectedUserName,
 } from "../../../redux/auth/authSlice";
 // MUI Imports
-import { Box, Button, Tooltip } from "@mui/material";
+import { Avatar, Box, Button, Tooltip } from "@mui/material";
 // Custom Imports
 import { Heading, SubHeading } from "../../../components/Heading";
 import SearchBar from "../../../components/SearchBar";
@@ -307,7 +307,9 @@ const SideBar: React.FC<SideBarProps> = ({
         chatsWithoutDuplicates.map((chat: any, index: number) => (
           <Box key={index}>
             {chat?.users
-              ?.filter((user: any) => user._id !== userId)
+              ?.filter((user: any) =>
+                chat?.isGroupChat ? user._id === userId : user._id !== userId
+              )
               .map((friend: any) => {
                 const isSelected = selectedChat === chat._id;
 
@@ -335,19 +337,26 @@ const SideBar: React.FC<SideBarProps> = ({
                         gap: "10px",
                       }}
                     >
-                      <img
-                        src={friend?.pic}
-                        alt={friend?.name}
-                        style={{
-                          width: "35px",
-                          height: "35px",
-                          borderRadius: "50%",
-                        }}
-                      />
+                      {chat?.isGroupChat ? (
+                        <Avatar sx={{ width: 33, height: 33 }}>
+                          {chat?.chatName[0]}
+                        </Avatar>
+                      ) : (
+                        <img
+                          src={friend?.pic}
+                          alt={friend?.name}
+                          style={{
+                            width: "35px",
+                            height: "35px",
+                            borderRadius: "50%",
+                          }}
+                        />
+                      )}
+
                       <SubHeading
                         sx={{ color: isSelected ? "#fff" : "#513dea" }}
                       >
-                        {friend?.name}
+                        {chat?.isGroupChat ? chat?.chatName : friend?.name}
                       </SubHeading>
                     </Box>
                     <Box

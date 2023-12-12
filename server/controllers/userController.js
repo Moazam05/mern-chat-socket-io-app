@@ -45,6 +45,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const query = req.query.search;
+  const currentUserId = req.user._id.toString();
 
   // User search based on name or email
   let filter = {};
@@ -58,7 +59,10 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
     };
   }
 
-  const users = await User.find(filter);
+  let users = await User.find(filter);
+
+  // Remove current user from response
+  users = users.filter((user) => user._id.toString() !== currentUserId);
 
   // Remove password from response
   users.forEach((user) => {
