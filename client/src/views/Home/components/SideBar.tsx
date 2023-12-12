@@ -11,7 +11,7 @@ import {
   selectedUserName,
 } from "../../../redux/auth/authSlice";
 // MUI Imports
-import { Box, Tooltip } from "@mui/material";
+import { Box, Button, Tooltip } from "@mui/material";
 // Custom Imports
 import { Heading, SubHeading } from "../../../components/Heading";
 import SearchBar from "../../../components/SearchBar";
@@ -26,6 +26,8 @@ import {
 import ToastAlert from "../../../components/ToastAlert/ToastAlert";
 import Spinner from "../../../components/Spinner";
 import { uniqBy } from "lodash";
+import { FaPlus } from "react-icons/fa6";
+import CreateGroupChatModal from "./CreateGroupChatModal";
 
 interface SideBarProps {
   searchText: string;
@@ -48,6 +50,8 @@ const SideBar: React.FC<SideBarProps> = ({
   const userName = useTypedSelector(selectedUserName);
   const userAvatar = useTypedSelector(selectedUserAvatar);
   const userId = useTypedSelector(selectedUserId);
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const handleOpenModal = () => setOpenModal(true);
   // state
   const [toast, setToast] = useState({
     message: "",
@@ -166,7 +170,20 @@ const SideBar: React.FC<SideBarProps> = ({
           </Tooltip>
         </Box>
       </Box>
-      <Box sx={{ margin: "25px 0", padding: "0 20px" }}>
+      <Box sx={{ margin: "10px 0", padding: "0 20px" }}>
+        <Box sx={{ margin: "10px 0", display: "flex", justifyContent: "end" }}>
+          <Button
+            variant="outlined"
+            sx={{
+              textTransform: "capitalize",
+            }}
+            size="small"
+            startIcon={<FaPlus />}
+            onClick={handleOpenModal}
+          >
+            New Group Chat
+          </Button>
+        </Box>
         <SearchBar
           placeholder="Search Friends"
           color="#fff"
@@ -302,7 +319,7 @@ const SideBar: React.FC<SideBarProps> = ({
                       justifyContent: "space-between",
                       cursor: "pointer",
                       borderRadius: "5px",
-                      background: isSelected ? "rgb(49 150 147)" : "",
+                      background: isSelected ? "rgba(49, 150, 147, 0.75)" : "",
                       margin: isSelected ? "10px 10px" : "20px 0",
                       padding: isSelected ? "10px" : "0 20px",
                     }}
@@ -400,6 +417,7 @@ const SideBar: React.FC<SideBarProps> = ({
           </Box>
         </Tooltip>
       </Box>
+      <CreateGroupChatModal open={openModal} setOpen={setOpenModal} />
       <ToastAlert
         appearence={toast.appearence}
         type={toast.type}

@@ -112,6 +112,7 @@ exports.createGroupChat = catchAsync(async (req, res, next) => {
   // 4) Response
   res.status(200).json({
     status: "success",
+    message: "Group chat created successfully",
     chat: FullChat,
   });
 });
