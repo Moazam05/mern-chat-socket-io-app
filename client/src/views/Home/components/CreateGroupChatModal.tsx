@@ -252,7 +252,6 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
     useLeaveGroupChatMutation();
 
   const leaveGroupHandler = async () => {
-    // alert("Leave Group");
     const payload = {
       userId: userId,
     };

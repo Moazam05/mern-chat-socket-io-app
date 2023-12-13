@@ -7,25 +7,13 @@ import useTypedSelector from "../../../hooks/useTypedSelector";
 import { selectedUserId } from "../../../redux/auth/authSlice";
 import { GoPencil } from "react-icons/go";
 import CreateGroupChatModal from "./CreateGroupChatModal";
-
-const dummyChat = [
-  {
-    sender: "John Doe",
-    message: "Hey, how are you?",
-  },
-  {
-    receiver: "Bessie Cooper",
-    message: "I'm doing fine, how about you?",
-  },
-  {
-    sender: "John Doe",
-    message: "I'm doing great as well!",
-  },
-  {
-    receiver: "Bessie Cooper",
-    message: "We should go to the movies tomorrow!",
-  },
-];
+import {
+  useCreateMessageMutation,
+  useGetMessagesQuery,
+} from "../../../redux/api/messageApiSlice";
+import ToastAlert from "../../../components/ToastAlert/ToastAlert";
+import OverlayLoader from "../../../components/Spinner/OverlayLoader";
+import Spinner from "../../../components/Spinner";
 
 interface ChatProps {
   selectedChatInfo: any;
@@ -36,13 +24,16 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
   const [newMessage, setNewMessage] = useState<string>("");
   const [userData, setUserData] = useState<any>({});
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [toast, setToast] = useState({
+    message: "",
+    appearence: false,
+    type: "",
+  });
 
   const handleOpenModal = () => setOpenModal(true);
-
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    console.log(newMessage);
-    setNewMessage("");
+  const handleCloseToast = () => {
+    setToast({ ...toast, appearence: false });
   };
 
   useEffect(() => {
@@ -58,12 +49,61 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
     }
   }, [selectedChatInfo, userId]);
 
+  // SEND MESSAGE API CALL
+  const [sendMessage, { isLoading: isSendingMessage }] =
+    useCreateMessageMutation();
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+
+    if (!newMessage) return;
+    setNewMessage("");
+    const payload = {
+      chatId: userData._id,
+      content: newMessage,
+    };
+    try {
+      const message: any = await sendMessage(payload);
+      // if (message?.data?.status) {
+      // }
+      if (message?.error) {
+        setToast({
+          ...toast,
+          message: message?.error?.data?.message,
+          appearence: true,
+          type: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Send Message Error:", error);
+      setToast({
+        ...toast,
+        message: "Something went wrong",
+        appearence: true,
+        type: "error",
+      });
+    }
+  };
+
+  // GET ALL MESSAGES API CALL
+  const { data: messagesData, isLoading: messagesLoading } =
+    useGetMessagesQuery(userData._id, {
+      refetchOnMountOrArgChange: true,
+    });
+
+  useEffect(() => {
+    if (messagesData?.messages) {
+      setChatMessages(messagesData?.messages);
+    }
+  }, [messagesData?.messages]);
+
   return (
     <Box
       sx={{
         padding: "20px",
       }}
     >
+      {messagesLoading && <OverlayLoader />}
       <Box>
         {/* Simple Chat */}
         {!selectedChatInfo?.isGroupChat &&
@@ -151,26 +191,31 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
           },
         }}
       >
-        {dummyChat.map((chat, index) => {
-          const isSender = !!chat.sender;
-
+        {chatMessages?.length === 0 && (
+          <Box>
+            <SubHeading sx={{ textAlign: "center" }}>
+              No conversation start yet
+            </SubHeading>
+          </Box>
+        )}
+        {chatMessages?.map((chat, index) => {
           return (
             <Box
               key={index}
               sx={{
-                textAlign: isSender ? "right" : "left",
-                width: isSender ? "50%" : "50%",
-                background: isSender ? "#513dea" : "#f3f4f6",
-                color: isSender ? "#fff" : "#000",
+                textAlign: chat.sender._id === userId ? "right" : "left",
+                width: chat.sender._id === userId ? "50%" : "50%",
+                background: chat.sender._id === userId ? "#513dea" : "#f3f4f6",
+                color: chat.sender._id === userId ? "#fff" : "#000",
                 padding: "10px",
                 borderRadius: "10px",
                 marginBottom: "10px",
                 maxWidth: "300px",
                 marginRight: "15px",
-                marginLeft: isSender ? "auto" : "none", // Adjusted margin for sender messages
+                marginLeft: chat.sender._id === userId ? "auto" : "none", // Adjusted margin for sender messages
               }}
             >
-              {chat.message}
+              {chat.content}
             </Box>
           );
         })}
@@ -209,7 +254,11 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
                 cursor: "pointer",
               }}
             >
-              <LuSendHorizonal />
+              {isSendingMessage ? (
+                <Spinner specificColor="#fff" size={14} />
+              ) : (
+                <LuSendHorizonal />
+              )}
             </Box>
           </Box>
         </form>
@@ -218,6 +267,12 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
         open={openModal}
         setOpen={setOpenModal}
         chatData={userData}
+      />
+      <ToastAlert
+        appearence={toast.appearence}
+        type={toast.type}
+        message={toast.message}
+        handleClose={handleCloseToast}
       />
     </Box>
   );
