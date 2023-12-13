@@ -40,3 +40,16 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
     chat,
   });
 });
+
+exports.getAllMessages = catchAsync(async (req, res, next) => {
+  const chatId = req.params.chatId;
+
+  const messages = await Message.find({ chat: chatId })
+    .populate("sender", "name pic email")
+    .populate("chat");
+
+  res.status(200).json({
+    status: "success",
+    messages,
+  });
+});
