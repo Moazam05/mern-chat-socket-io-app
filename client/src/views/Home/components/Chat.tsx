@@ -238,7 +238,7 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
                     marginBottom: "10px",
                     maxWidth: "300px",
                     marginRight: "15px",
-                    marginLeft: chat.sender._id === userId ? "auto" : "49px",
+                    marginLeft: chat.sender._id === userId ? "auto" : "45px",
                   }}
                 >
                   <Box> {chat.content}</Box>
@@ -262,7 +262,7 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: "5px",
+                gap: "10px",
               }}
             >
               {chat.sender._id !== userId && (
