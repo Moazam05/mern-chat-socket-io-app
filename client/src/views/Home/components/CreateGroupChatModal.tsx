@@ -17,6 +17,7 @@ import ToastAlert from "../../../components/ToastAlert/ToastAlert";
 import {
   useAddMemberToGroupChatMutation,
   useCreateGroupChatMutation,
+  useLeaveGroupChatMutation,
   useRenameGroupChatMutation,
 } from "../../../redux/api/chatApiSlice";
 import DotLoader from "../../../components/Spinner/dotLoader";
@@ -246,6 +247,48 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
     }
   };
 
+  // LEAVE GROUP API CALL
+  const [leaveGroup, { isLoading: leaveGroupLoading }] =
+    useLeaveGroupChatMutation();
+
+  const leaveGroupHandler = async () => {
+    // alert("Leave Group");
+    const payload = {
+      userId: userId,
+    };
+    try {
+      const leaveGroupChat: any = await leaveGroup({
+        userId: payload,
+        chatId: chatData?._id,
+      });
+      if (leaveGroupChat?.data?.status) {
+        setToast({
+          ...toast,
+          message: "Group Left Successfully",
+          appearence: true,
+          type: "success",
+        });
+        handleClose();
+      }
+      if (leaveGroupChat?.error) {
+        setToast({
+          ...toast,
+          message: leaveGroupChat?.error?.data?.message,
+          appearence: true,
+          type: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Leave Group Error:", error);
+      setToast({
+        ...toast,
+        message: "Something went wrong",
+        appearence: true,
+        type: "error",
+      });
+    }
+  };
+
   return (
     <Box>
       <Modal
@@ -350,6 +393,7 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
                         display: "flex",
                         justifyContent: "end",
                         marginTop: "10px",
+                        flexDirection: "column",
                       }}
                     >
                       <Button
@@ -375,6 +419,35 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
                           "Create Group Chat"
                         )}
                       </Button>
+                      {chatData && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "end",
+                            marginTop: "12px",
+                          }}
+                        >
+                          <Button
+                            size="small"
+                            disabled={leaveGroupLoading}
+                            sx={{
+                              width: "fit-content",
+                              textTransform: "capitalize",
+                              height: "35px",
+                              lineHeight: "0",
+                            }}
+                            variant="contained"
+                            color="error"
+                            onClick={leaveGroupHandler}
+                          >
+                            {leaveGroupLoading ? (
+                              <DotLoader color="#fff" size={12} />
+                            ) : (
+                              "Leave Group"
+                            )}
+                          </Button>
+                        </Box>
+                      )}
                     </Box>
                   </Form>
                 );

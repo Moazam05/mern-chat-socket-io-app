@@ -51,6 +51,17 @@ export const chatApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["Chats"],
     }),
+    leaveGroupChat: builder.mutation({
+      query: (data) => {
+        console.log("data", data);
+        return {
+          url: `chats/group/${data.chatId}/remove`,
+          method: "PUT",
+          body: data.userId,
+        };
+      },
+      invalidatesTags: ["Chats"],
+    }),
   }),
 });
 
@@ -60,4 +71,5 @@ export const {
   useCreateGroupChatMutation,
   useRenameGroupChatMutation,
   useAddMemberToGroupChatMutation,
+  useLeaveGroupChatMutation,
 } = chatApiSlice;
