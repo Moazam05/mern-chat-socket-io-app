@@ -15,10 +15,14 @@ const ChatInfo: React.FC<ChatInfoProps> = ({ selectedChatInfo }) => {
 
   useEffect(() => {
     if (selectedChatInfo) {
-      const filteredUsers = selectedChatInfo?.users?.filter(
-        (user: any) => user._id !== userId
-      );
-      setUserData({ ...selectedChatInfo, users: filteredUsers });
+      if (selectedChatInfo?.isGroupChat) {
+        setUserData({ ...selectedChatInfo, users: selectedChatInfo?.users });
+      } else {
+        const filteredUsers = selectedChatInfo?.users?.filter(
+          (user: any) => user._id !== userId
+        );
+        setUserData({ ...selectedChatInfo, users: filteredUsers });
+      }
     }
   }, [selectedChatInfo, userId]);
 

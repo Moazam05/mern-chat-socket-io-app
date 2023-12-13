@@ -179,9 +179,9 @@ exports.removeFromGroupChat = catchAsync(async (req, res, next) => {
     return next(new AppError("No chat found with that id", 404));
   }
 
-  if (chat.groupAdmin.toString() !== req.user._id.toString()) {
-    return next(new AppError("You are not the admin of this group", 400));
-  }
+  // if (chat.groupAdmin.toString() !== req.user._id.toString()) {
+  //   return next(new AppError("You are not the admin of this group", 400));
+  // }
 
   if (!chat.users.includes(userId)) {
     return next(new AppError("User not in this group", 400));
