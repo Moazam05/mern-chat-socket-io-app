@@ -14,6 +14,7 @@ import {
 import ToastAlert from "../../../components/ToastAlert/ToastAlert";
 import OverlayLoader from "../../../components/Spinner/OverlayLoader";
 import Spinner from "../../../components/Spinner";
+import { formatTime } from "../../../utils";
 
 interface ChatProps {
   selectedChatInfo: any;
@@ -220,12 +221,48 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
           </Box>
         )}
         {chatMessages?.map((chat, index) => {
+          // if same user send multiple messages then show only one avatar
+          if (index > 0) {
+            if (chat.sender._id === chatMessages[index - 1].sender._id) {
+              return (
+                <Box
+                  key={index}
+                  sx={{
+                    textAlign: chat.sender._id === userId ? "right" : "left",
+                    width: chat.sender._id === userId ? "50%" : "50%",
+                    background:
+                      chat.sender._id === userId ? "#513dea" : "#f3f4f6",
+                    color: chat.sender._id === userId ? "#fff" : "#000",
+                    padding: "10px",
+                    borderRadius: "10px",
+                    marginBottom: "10px",
+                    maxWidth: "300px",
+                    marginRight: "15px",
+                    marginLeft: chat.sender._id === userId ? "auto" : "49px",
+                  }}
+                >
+                  <Box> {chat.content}</Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      fontSize: "10px",
+                      marginTop: "5px",
+                      color: chat.sender._id === userId ? "#fff" : "#000",
+                    }}
+                  >
+                    {formatTime(chat.createdAt)}
+                  </Box>
+                </Box>
+              );
+            }
+          }
           return (
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: "10px",
+                gap: "5px",
               }}
             >
               {chat.sender._id !== userId && (
@@ -272,6 +309,17 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
                   </Box>
                 )}
                 <Box> {chat.content}</Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    fontSize: "10px",
+                    marginTop: "5px",
+                    color: chat.sender._id === userId ? "#fff" : "#000",
+                  }}
+                >
+                  {formatTime(chat.createdAt)}
+                </Box>
               </Box>
             </Box>
           );
