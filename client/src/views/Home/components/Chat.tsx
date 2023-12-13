@@ -97,6 +97,27 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
     }
   }, [messagesData?.messages]);
 
+  const generateColorForName = (name: string) => {
+    const colors = [
+      "#f44336",
+      "#e91e63",
+      "#9c27b0",
+      "#673ab7",
+      "#3f51b5",
+      "#2196f3",
+      "#00bcd4",
+      "#009688",
+      "#4caf50",
+      "#ff9800",
+      "#ff5722",
+    ];
+
+    const firstLetter = name[0].toUpperCase();
+    const value = firstLetter.charCodeAt(0) - 65;
+    const colorIndex = value % colors.length;
+    return colors[colorIndex];
+  };
+
   return (
     <Box
       sx={{
@@ -201,21 +222,57 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
         {chatMessages?.map((chat, index) => {
           return (
             <Box
-              key={index}
               sx={{
-                textAlign: chat.sender._id === userId ? "right" : "left",
-                width: chat.sender._id === userId ? "50%" : "50%",
-                background: chat.sender._id === userId ? "#513dea" : "#f3f4f6",
-                color: chat.sender._id === userId ? "#fff" : "#000",
-                padding: "10px",
-                borderRadius: "10px",
-                marginBottom: "10px",
-                maxWidth: "300px",
-                marginRight: "15px",
-                marginLeft: chat.sender._id === userId ? "auto" : "none", // Adjusted margin for sender messages
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
               }}
             >
-              {chat.content}
+              {chat.sender._id !== userId && (
+                <Box>
+                  <img
+                    src={chat.sender.pic}
+                    alt="avatar"
+                    style={{
+                      width: "35px",
+                      height: "35px",
+                      borderRadius: "50%",
+                      border: "1px solid #513dea",
+                      marginBottom: "10px",
+                    }}
+                  />
+                </Box>
+              )}
+              <Box
+                key={index}
+                sx={{
+                  textAlign: chat.sender._id === userId ? "right" : "left",
+                  width: chat.sender._id === userId ? "50%" : "50%",
+                  background:
+                    chat.sender._id === userId ? "#513dea" : "#f3f4f6",
+                  color: chat.sender._id === userId ? "#fff" : "#000",
+                  padding: "10px",
+                  borderRadius: "10px",
+                  marginBottom: "10px",
+                  maxWidth: "300px",
+                  marginRight: "15px",
+                  marginLeft: chat.sender._id === userId ? "auto" : "none",
+                }}
+              >
+                {chat.sender._id !== userId && (
+                  <Box
+                    sx={{
+                      fontSize: "12px",
+                      marginBottom: "5px",
+                      fontWeight: 500,
+                      color: generateColorForName(chat.sender.name),
+                    }}
+                  >
+                    {chat.sender.name}
+                  </Box>
+                )}
+                <Box> {chat.content}</Box>
+              </Box>
             </Box>
           );
         })}
