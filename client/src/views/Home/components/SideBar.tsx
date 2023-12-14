@@ -220,7 +220,6 @@ const SideBar: React.FC<SideBarProps> = ({
         ) : (
           searchText?.length > 0 &&
           data?.users?.map((user: any, index: number) => {
-            console.log("user", user);
             return (
               <Box
                 sx={{
@@ -316,8 +315,6 @@ const SideBar: React.FC<SideBarProps> = ({
               )
               .map((friend: any) => {
                 const isSelected = selectedChat === chat._id;
-
-                console.log("friend", chat?.latestMessage?.content);
 
                 return (
                   <Box

@@ -107,3 +107,24 @@ export function thousandSeparatorNumber(number: number) {
 
   return formattedNumber;
 }
+
+export const generateColorForName = (name: string) => {
+  const colors = [
+    "#f44336",
+    "#e91e63",
+    "#9c27b0",
+    "#673ab7",
+    "#3f51b5",
+    "#2196f3",
+    "#00bcd4",
+    "#009688",
+    "#4caf50",
+    "#ff9800",
+    "#ff5722",
+  ];
+
+  const firstLetter = name[0].toUpperCase();
+  const value = firstLetter.charCodeAt(0) - 65;
+  const colorIndex = value % colors.length;
+  return colors[colorIndex];
+};

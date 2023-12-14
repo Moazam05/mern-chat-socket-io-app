@@ -14,7 +14,7 @@ import {
 import ToastAlert from "../../../components/ToastAlert/ToastAlert";
 import OverlayLoader from "../../../components/Spinner/OverlayLoader";
 import Spinner from "../../../components/Spinner";
-import { formatTime } from "../../../utils";
+import { formatTime, generateColorForName } from "../../../utils";
 import io from "socket.io-client";
 
 interface ChatProps {
@@ -23,7 +23,8 @@ interface ChatProps {
 
 // SOCKET.IO IMPLEMENTATION
 const ENDPOINT = "http://localhost:5000";
-var socket: any, selectedChatCompare;
+let socket: any;
+let selectedChatCompare: any;
 
 const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
   const userId = useTypedSelector(selectedUserId);
@@ -42,6 +43,62 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
   const handleCloseToast = () => {
     setToast({ ...toast, appearence: false });
   };
+
+  // GET ALL MESSAGES API CALL
+  const { data: messagesData, isLoading: messagesLoading } =
+    useGetMessagesQuery(userData._id, {
+      refetchOnMountOrArgChange: true,
+    });
+
+  useEffect(() => {
+    if (messagesData?.messages) {
+      // Socket Enable when fetching messages
+      socket.emit("join chat", userData._id);
+
+      setChatMessages(messagesData?.messages);
+      selectedChatCompare = userData;
+    }
+  }, [messagesData?.messages, userData]);
+
+  // GET USER FROM LOCAL STORAGE
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  useEffect(() => {
+    // Create the socket connection
+    socket = io(ENDPOINT);
+
+    // Emit the "setup" event to the server
+    socket.emit("setup", user?.data?.user);
+
+    // Listen for the "connected" event from the server
+    socket.on("connected", () => {
+      setSocketConnected(true);
+    });
+
+    // Listen for the "message received" event from the server
+    socket.on("message received", (newMessage: any) => {
+      if (
+        !selectedChatCompare ||
+        selectedChatCompare._id !== newMessage.chat._id
+      ) {
+        setToast({
+          ...toast,
+          message: `${newMessage?.sender?.name} sent you a message`,
+          appearence: true,
+          type: "success",
+        });
+      } else {
+        setChatMessages((prev) => {
+          const isMessageExists = prev.some(
+            (msg) => msg._id === newMessage._id
+          );
+          return isMessageExists ? prev : [...prev, newMessage];
+        });
+      }
+    });
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (selectedChatInfo) {
@@ -71,8 +128,9 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
     };
     try {
       const message: any = await sendMessage(payload);
-      // if (message?.data?.status) {
-      // }
+      if (message?.data?.status) {
+        socket.emit("new message", message?.data?.message);
+      }
       if (message?.error) {
         setToast({
           ...toast,
@@ -91,52 +149,6 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
       });
     }
   };
-
-  // GET ALL MESSAGES API CALL
-  const { data: messagesData, isLoading: messagesLoading } =
-    useGetMessagesQuery(userData._id, {
-      refetchOnMountOrArgChange: true,
-    });
-
-  useEffect(() => {
-    if (messagesData?.messages) {
-      // Socket Enable when fetching messages
-      socket.emit("join chat", userData._id);
-
-      setChatMessages(messagesData?.messages);
-    }
-  }, [messagesData?.messages, userData._id]);
-
-  const generateColorForName = (name: string) => {
-    const colors = [
-      "#f44336",
-      "#e91e63",
-      "#9c27b0",
-      "#673ab7",
-      "#3f51b5",
-      "#2196f3",
-      "#00bcd4",
-      "#009688",
-      "#4caf50",
-      "#ff9800",
-      "#ff5722",
-    ];
-
-    const firstLetter = name[0].toUpperCase();
-    const value = firstLetter.charCodeAt(0) - 65;
-    const colorIndex = value % colors.length;
-    return colors[colorIndex];
-  };
-
-  // GET USER FROM LOCAL STORAGE
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    socket = io(ENDPOINT);
-    socket.emit("setup", user?.data?.user);
-    socket.on("connection", () => setSocketConnected(true));
-  }, []);
 
   return (
     <Box
@@ -299,7 +311,7 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
                 </Box>
               )}
               <Box
-                key={index}
+                key={chat._id}
                 sx={{
                   textAlign: chat.sender._id === userId ? "right" : "left",
                   width: chat.sender._id === userId ? "50%" : "50%",

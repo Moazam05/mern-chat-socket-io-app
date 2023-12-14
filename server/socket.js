@@ -10,7 +10,7 @@ const initSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("Connected to Socket.io".bold.bgRed);
+    console.log("Connected to socket.io".bold.bgRed);
 
     socket.on("setup", (userData) => {
       socket.join(userData._id);
@@ -19,7 +19,18 @@ const initSocket = (server) => {
 
     socket.on("join chat", (room) => {
       socket.join(room);
-      console.log("User joined room", room.bgRed);
+      console.log("User Joined Room:", room.bgRed);
+    });
+
+    socket.on("new message", (newMessage) => {
+      var chat = newMessage.chat;
+
+      if (!chat.users) return console.log("Chat.users not defined".red);
+
+      chat.users.forEach((user) => {
+        if (user._id === newMessage.sender._id) return;
+        socket.in(user._id).emit("message received", newMessage);
+      });
     });
 
     // socket.on("chat", (data) => {
