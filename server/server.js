@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 // Custom Imports
 const app = require("./app");
+const initSocket = require("./socket");
 
 process.on("uncaughtException", (err) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -29,6 +30,9 @@ const port = process.env.PORT || 8000;
 const server = app.listen(port, () => {
   console.log(`Server in running on port ${port}`);
 });
+
+// INITIALIZE SOCKET.IO
+initSocket(server);
 
 process.on("unhandledRejection", (err) => {
   console.log("UNHANDLED REJECTION! 💥 Shutting down...");
