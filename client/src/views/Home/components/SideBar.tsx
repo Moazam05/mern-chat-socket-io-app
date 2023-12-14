@@ -316,6 +316,8 @@ const SideBar: React.FC<SideBarProps> = ({
               .map((friend: any) => {
                 const isSelected = selectedChat === chat._id;
 
+                console.log("chat", chat);
+
                 return (
                   <Box
                     sx={{
@@ -388,14 +390,16 @@ const SideBar: React.FC<SideBarProps> = ({
                         gap: "5px",
                       }}
                     >
-                      <Box
-                        sx={{
-                          fontSize: "12px",
-                          color: isSelected ? "#fff" : "gray",
-                        }}
-                      >
-                        {formatTime(chat?.latestMessage?.createdAt)}
-                      </Box>
+                      {chat?.latestMessage?.createdAt && (
+                        <Box
+                          sx={{
+                            fontSize: "12px",
+                            color: isSelected ? "#fff" : "gray",
+                          }}
+                        >
+                          {formatTime(chat?.latestMessage?.createdAt)}
+                        </Box>
+                      )}
                       <Box
                         sx={{
                           background: isSelected ? "#fff" : "#513dea",
