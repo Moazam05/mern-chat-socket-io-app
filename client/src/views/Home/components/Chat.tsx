@@ -15,10 +15,15 @@ import ToastAlert from "../../../components/ToastAlert/ToastAlert";
 import OverlayLoader from "../../../components/Spinner/OverlayLoader";
 import Spinner from "../../../components/Spinner";
 import { formatTime } from "../../../utils";
+import io from "socket.io-client";
 
 interface ChatProps {
   selectedChatInfo: any;
 }
+
+// SOCKET.IO IMPLEMENTATION
+const ENDPOINT = "http://localhost:5000";
+var socket: any, selectedChatCompare;
 
 const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
   const userId = useTypedSelector(selectedUserId);
@@ -26,6 +31,7 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
   const [userData, setUserData] = useState<any>({});
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [socketConnected, setSocketConnected] = useState<boolean>(false);
   const [toast, setToast] = useState({
     message: "",
     appearence: false,
@@ -94,9 +100,12 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
 
   useEffect(() => {
     if (messagesData?.messages) {
+      // Socket Enable when fetching messages
+      socket.emit("join chat", userData._id);
+
       setChatMessages(messagesData?.messages);
     }
-  }, [messagesData?.messages]);
+  }, [messagesData?.messages, userData._id]);
 
   const generateColorForName = (name: string) => {
     const colors = [
@@ -118,6 +127,16 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
     const colorIndex = value % colors.length;
     return colors[colorIndex];
   };
+
+  // GET USER FROM LOCAL STORAGE
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    socket = io(ENDPOINT);
+    socket.emit("setup", user?.data?.user);
+    socket.on("connection", () => setSocketConnected(true));
+  }, []);
 
   return (
     <Box
@@ -226,7 +245,7 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
             if (chat.sender._id === chatMessages[index - 1].sender._id) {
               return (
                 <Box
-                  key={index}
+                  key={chat._id}
                   sx={{
                     textAlign: chat.sender._id === userId ? "right" : "left",
                     width: chat.sender._id === userId ? "50%" : "50%",
@@ -274,7 +293,6 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
                       width: "35px",
                       height: "35px",
                       borderRadius: "50%",
-                      border: "1px solid #513dea",
                       marginBottom: "10px",
                     }}
                   />
