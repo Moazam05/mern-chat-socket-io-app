@@ -28,6 +28,7 @@ import Spinner from "../../../components/Spinner";
 import { uniqBy } from "lodash";
 import { FaPlus } from "react-icons/fa6";
 import CreateGroupChatModal from "./CreateGroupChatModal";
+import { formatTime } from "../../../utils";
 
 interface SideBarProps {
   searchText: string;
@@ -219,6 +220,7 @@ const SideBar: React.FC<SideBarProps> = ({
         ) : (
           searchText?.length > 0 &&
           data?.users?.map((user: any, index: number) => {
+            console.log("user", user);
             return (
               <Box
                 sx={{
@@ -315,6 +317,8 @@ const SideBar: React.FC<SideBarProps> = ({
               .map((friend: any) => {
                 const isSelected = selectedChat === chat._id;
 
+                console.log("friend", chat?.latestMessage?.content);
+
                 return (
                   <Box
                     sx={{
@@ -356,11 +360,28 @@ const SideBar: React.FC<SideBarProps> = ({
                         />
                       )}
 
-                      <SubHeading
-                        sx={{ color: isSelected ? "#fff" : "#513dea" }}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
                       >
-                        {chat?.isGroupChat ? chat?.chatName : friend?.name}
-                      </SubHeading>
+                        <SubHeading
+                          sx={{ color: isSelected ? "#fff" : "#513dea" }}
+                        >
+                          {chat?.isGroupChat ? chat?.chatName : friend?.name}
+                        </SubHeading>
+                        <Box
+                          sx={{
+                            fontSize: "12px",
+                            color: isSelected ? "#fff" : "gray",
+                          }}
+                        >
+                          {chat?.latestMessage?.content?.length > 40
+                            ? chat?.latestMessage?.content?.slice(0, 40) + "..."
+                            : chat?.latestMessage?.content}
+                        </Box>
+                      </Box>
                     </Box>
                     <Box
                       sx={{
@@ -376,7 +397,7 @@ const SideBar: React.FC<SideBarProps> = ({
                           color: isSelected ? "#fff" : "gray",
                         }}
                       >
-                        10:45 PM
+                        {formatTime(chat?.latestMessage?.createdAt)}
                       </Box>
                       <Box
                         sx={{
