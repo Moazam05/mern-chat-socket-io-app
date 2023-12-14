@@ -316,8 +316,6 @@ const SideBar: React.FC<SideBarProps> = ({
               .map((friend: any) => {
                 const isSelected = selectedChat === chat._id;
 
-                console.log("chat", chat);
-
                 return (
                   <Box
                     sx={{
