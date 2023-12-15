@@ -53,14 +53,17 @@ const SideBar: React.FC<SideBarProps> = ({
   const userName = useTypedSelector(selectedUserName);
   const userAvatar = useTypedSelector(selectedUserAvatar);
   const userId = useTypedSelector(selectedUserId);
+
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const handleOpenModal = () => setOpenModal(true);
+  const [selectedUser, setSelectedUser] = useState<string>("");
   // state
   const [toast, setToast] = useState({
     message: "",
     appearence: false,
     type: "",
   });
+
+  const handleOpenModal = () => setOpenModal(true);
 
   const handleCloseToast = () => {
     setToast({ ...toast, appearence: false });
@@ -232,6 +235,7 @@ const SideBar: React.FC<SideBarProps> = ({
                 key={index}
                 onClick={() => {
                   createChatHandler(user._id);
+                  setSelectedUser(user._id);
                 }}
               >
                 <Box
@@ -276,7 +280,7 @@ const SideBar: React.FC<SideBarProps> = ({
                           fontSize: "12px",
                         }}
                       >
-                        Email:{" "}
+                        Email:
                         <span
                           style={{
                             fontWeight: "normal",
@@ -287,7 +291,7 @@ const SideBar: React.FC<SideBarProps> = ({
                       </SubHeading>
                     </Box>
                   </Box>
-                  {chatLoading && (
+                  {selectedUser === user._id && chatLoading && (
                     <Box
                       sx={{
                         display: "flex",
