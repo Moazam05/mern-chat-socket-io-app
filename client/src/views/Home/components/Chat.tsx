@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Avatar, Box, Divider, Tooltip } from "@mui/material";
 import { SubHeading } from "../../../components/Heading";
 import PrimaryInput from "../../../components/PrimaryInput/PrimaryInput";
@@ -29,6 +29,8 @@ let selectedChatCompare: any;
 
 const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
   const userId = useTypedSelector(selectedUserId);
+  const messageBoxRef = useRef<any>(null);
+
   const [newMessage, setNewMessage] = useState<string>("");
   const [userData, setUserData] = useState<any>({});
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -182,6 +184,12 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
     }, timerLength);
   };
 
+  useEffect(() => {
+    if (messageBoxRef.current) {
+      messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight;
+    }
+  }, [chatMessages]);
+
   return (
     <Box
       sx={{
@@ -260,6 +268,7 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
         <Divider />
       </Box>
       <Box
+        ref={messageBoxRef}
         sx={{
           margin: "20px 0",
           width: "100%",
