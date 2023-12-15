@@ -22,6 +22,14 @@ const initSocket = (server) => {
       console.log("User Joined Room:", room.bgRed);
     });
 
+    socket.on("typing", (room) => {
+      socket.in(room).emit("typing");
+    });
+
+    socket.on("stop typing", (room) => {
+      socket.in(room).emit("stop typing");
+    });
+
     socket.on("new message", (newMessage) => {
       var chat = newMessage.chat;
 
@@ -33,13 +41,10 @@ const initSocket = (server) => {
       });
     });
 
-    // socket.on("chat", (data) => {
-    //   socket.broadcast.emit("chat", data);
-    // });
-
-    // socket.on("typing", (data) => {
-    //   socket.broadcast.emit("typing", data);
-    // });
+    socket.off("setup", () => {
+      console.log("Disconnected from socket.io".bold.bgRed);
+      socket.leave(userData._id);
+    });
   });
 
   return io;

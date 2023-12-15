@@ -16,6 +16,7 @@ import OverlayLoader from "../../../components/Spinner/OverlayLoader";
 import Spinner from "../../../components/Spinner";
 import { formatTime, generateColorForName } from "../../../utils";
 import io from "socket.io-client";
+import DotLoader from "../../../components/Spinner/dotLoader";
 
 interface ChatProps {
   selectedChatInfo: any;
@@ -23,7 +24,7 @@ interface ChatProps {
 
 // SOCKET.IO IMPLEMENTATION
 const ENDPOINT = "http://localhost:5000";
-let socket: any;
+let socket: any | undefined;
 let selectedChatCompare: any;
 
 const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
@@ -33,6 +34,8 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [socketConnected, setSocketConnected] = useState<boolean>(false);
+  const [typing, setTyping] = useState<boolean>(false);
+  const [isTyping, setIsTyping] = useState<boolean>(false);
   const [toast, setToast] = useState({
     message: "",
     appearence: false,
@@ -43,22 +46,6 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
   const handleCloseToast = () => {
     setToast({ ...toast, appearence: false });
   };
-
-  // GET ALL MESSAGES API CALL
-  const { data: messagesData, isLoading: messagesLoading } =
-    useGetMessagesQuery(userData._id, {
-      refetchOnMountOrArgChange: true,
-    });
-
-  useEffect(() => {
-    if (messagesData?.messages) {
-      // Socket Enable when fetching messages
-      socket.emit("join chat", userData._id);
-
-      setChatMessages(messagesData?.messages);
-      selectedChatCompare = userData;
-    }
-  }, [messagesData?.messages, userData]);
 
   // GET USER FROM LOCAL STORAGE
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -74,6 +61,10 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
     socket.on("connected", () => {
       setSocketConnected(true);
     });
+
+    // Listen for the "typing" event from the server
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop typing", () => setIsTyping(false));
 
     // Listen for the "message received" event from the server
     socket.on("message received", (newMessage: any) => {
@@ -99,6 +90,22 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // GET ALL MESSAGES API CALL
+  const { data: messagesData, isLoading: messagesLoading } =
+    useGetMessagesQuery(userData._id, {
+      refetchOnMountOrArgChange: true,
+    });
+
+  useEffect(() => {
+    if (messagesData?.messages) {
+      // Socket Enable when fetching messages
+      socket.emit("join chat", userData._id);
+
+      setChatMessages(messagesData?.messages);
+      selectedChatCompare = userData;
+    }
+  }, [messagesData?.messages, userData]);
 
   useEffect(() => {
     if (selectedChatInfo) {
@@ -126,6 +133,7 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
       chatId: userData._id,
       content: newMessage,
     };
+    socket.emit("stop typing", userData._id);
     try {
       const message: any = await sendMessage(payload);
       if (message?.data?.status) {
@@ -148,6 +156,30 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
         type: "error",
       });
     }
+  };
+
+  const typingHandler = (e: any) => {
+    setNewMessage(e.target.value);
+
+    if (!socketConnected) return;
+
+    if (!typing) {
+      setTyping(true);
+      socket.emit("typing", userData._id);
+    }
+
+    const lastTypingTime = new Date().getTime();
+    const timerLength = 3000;
+
+    setTimeout(() => {
+      const timeNow = new Date().getTime();
+      const timeDiff = timeNow - lastTypingTime;
+
+      if (timeDiff >= timerLength && typing) {
+        socket.emit("stop typing", userData._id);
+        setTyping(false);
+      }
+    }, timerLength);
   };
 
   return (
@@ -231,7 +263,7 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
         sx={{
           margin: "20px 0",
           width: "100%",
-          height: "72vh",
+          height: isTyping ? "67vh" : "72vh",
           overflowY: "scroll",
           "&::-webkit-scrollbar": {
             width: "5px",
@@ -369,13 +401,35 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
               gap: "10px",
             }}
           >
-            <PrimaryInput
-              placeholder="Type a message..."
-              background="#f3f4f6"
-              borderRadius="30px"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-            />
+            <Box
+              sx={{
+                flexGrow: 1,
+                position: "relative",
+              }}
+            >
+              {isTyping && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    background: "#f3f4f6",
+                    width: "fit-content",
+                    padding: "5px 10px",
+                    borderRadius: "30px",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <DotLoader color="#828389" size={12} />
+                </Box>
+              )}
+              <PrimaryInput
+                placeholder="Type a message..."
+                background="#f3f4f6"
+                borderRadius="30px"
+                value={newMessage}
+                onChange={typingHandler}
+              />
+            </Box>
             <Box
               sx={{
                 background: "#513dea",
@@ -387,6 +441,7 @@ const Chat: React.FC<ChatProps> = ({ selectedChatInfo }) => {
                 justifyContent: "center",
                 alignItems: "center",
                 cursor: "pointer",
+                marginTop: isTyping ? "35px" : "0",
               }}
             >
               {isSendingMessage ? (
