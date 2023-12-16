@@ -1,5 +1,7 @@
-import { Box } from "@mui/material";
+// React Imports
 import { BeatLoader } from "react-spinners";
+// MUI Imports
+import { Box } from "@mui/material";
 
 export default function OverlayLoader() {
   return (

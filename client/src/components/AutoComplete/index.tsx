@@ -1,10 +1,13 @@
+// React Imports
+import React from "react";
+// MUI Imports
 import {
   Autocomplete,
   InputAdornment,
   TextField,
   createFilterOptions,
 } from "@mui/material";
-import React from "react";
+// 3rd Party Imports
 import parse from "autosuggest-highlight/parse";
 import match from "autosuggest-highlight/match";
 
