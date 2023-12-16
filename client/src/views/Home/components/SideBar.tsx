@@ -240,7 +240,7 @@ const SideBar: React.FC<SideBarProps> = ({
                 position: "relative",
               }}
             >
-              <IoMdNotifications />
+              <IoMdNotifications color="#334155" />
               {notifications?.length > 0 && (
                 <Box
                   sx={{
@@ -630,9 +630,11 @@ const SideBar: React.FC<SideBarProps> = ({
       <Box
         sx={{
           padding: "0 20px",
+          display: "flex",
+          justifyContent: "end",
         }}
       >
-        <Tooltip title="Logout" placement="right">
+        <Tooltip title="Logout" placement="left">
           <Box
             sx={{
               position: "fixed",

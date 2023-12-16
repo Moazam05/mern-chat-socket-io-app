@@ -270,14 +270,6 @@ const Chat: React.FC<ChatProps> = ({
                     }}
                   />
                   <SubHeading sx={{ color: "#000)" }}>{user?.name}</SubHeading>
-                  <Box
-                    sx={{
-                      background: "rgb(47 178 102)",
-                      borderRadius: "50%",
-                      width: "10px",
-                      height: "10px",
-                    }}
-                  ></Box>
                 </Box>
               ))}
 
