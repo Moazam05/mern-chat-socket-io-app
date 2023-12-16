@@ -319,7 +319,7 @@ const Chat: React.FC<ChatProps> = ({
           </Box>
           <Box
             sx={{
-              minHeight: isTyping ? "67vh" : "75vh",
+              minHeight: isTyping ? "67vh" : "72vh",
             }}
           >
             <Box
@@ -327,7 +327,7 @@ const Chat: React.FC<ChatProps> = ({
               sx={{
                 margin: "20px 0",
                 width: "100%",
-                maxHeight: isTyping ? "67vh" : "75vh",
+                maxHeight: isTyping ? "67vh" : "72vh",
                 overflowY: "scroll",
                 "&::-webkit-scrollbar": {
                   display: "none",
@@ -452,7 +452,10 @@ const Chat: React.FC<ChatProps> = ({
           </Box>
           <Box
             sx={{
-              flexGrow: 1,
+              position: "fixed",
+              bottom: 15,
+              width: "100%",
+              maxWidth: "48vw",
             }}
           >
             <form onSubmit={handleSubmit}>
@@ -505,6 +508,7 @@ const Chat: React.FC<ChatProps> = ({
                     alignItems: "center",
                     cursor: "pointer",
                     marginTop: isTyping ? "35px" : "0",
+                    marginRight: "10px",
                   }}
                 >
                   {isSendingMessage ? (
