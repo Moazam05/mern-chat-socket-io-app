@@ -14,6 +14,7 @@ const Home = () => {
   const [selectedChatInfo, setSelectedChatInfo] = useState<any>(null);
   const [chats, setChats] = useState<any>([]);
   const [notifications, setNotifications] = useState<any>([]);
+  const [newMessageUsers, setNewMessageUsers] = useState({});
 
   const withoutDuplicatesNotifications = uniqBy(notifications, "_id");
 
@@ -36,6 +37,8 @@ const Home = () => {
           setSelectedChatInfo={setSelectedChatInfo}
           notifications={withoutDuplicatesNotifications}
           setNotifications={setNotifications}
+          newMessageUsers={newMessageUsers}
+          setNewMessageUsers={setNewMessageUsers}
         />
       </Box>
       <Box sx={{ flex: 2, background: "#fff" }}>
@@ -44,6 +47,8 @@ const Home = () => {
           selectedChat={selectedChat}
           notifications={notifications}
           setNotifications={setNotifications}
+          newMessageUsers={newMessageUsers}
+          setNewMessageUsers={setNewMessageUsers}
         />
       </Box>
       <Box sx={{ flex: 1, background: "#f3f4f6" }}>

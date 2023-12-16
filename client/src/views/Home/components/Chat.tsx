@@ -24,6 +24,8 @@ interface ChatProps {
   selectedChat: any;
   notifications: any;
   setNotifications: any;
+  newMessageUsers?: any;
+  setNewMessageUsers?: any;
 }
 
 // SOCKET.IO IMPLEMENTATION
@@ -36,6 +38,8 @@ const Chat: React.FC<ChatProps> = ({
   selectedChat,
   notifications,
   setNotifications,
+  newMessageUsers,
+  setNewMessageUsers,
 }) => {
   const userId = useTypedSelector(selectedUserId);
   const messageBoxRef = useRef<any>(null);
@@ -89,6 +93,17 @@ const Chat: React.FC<ChatProps> = ({
         );
         if (!isNotificationExists) {
           setNotifications((prev: any) => [...prev, newMessage]);
+        }
+        // Extract sender information from the new message
+        const senderId = newMessage?.sender?._id;
+
+        // Check if the user is the sender (to avoid counting own messages)
+        if (senderId && senderId !== user?.data?.user?._id) {
+          // Update the newMessageUsers state
+          setNewMessageUsers((prev: any) => {
+            const userCount = prev[newMessage.chat._id] || 0;
+            return { ...prev, [newMessage.chat._id]: userCount + 1 };
+          });
         }
       } else {
         setChatMessages((prev) => {

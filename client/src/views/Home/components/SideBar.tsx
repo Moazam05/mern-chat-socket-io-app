@@ -83,6 +83,8 @@ interface SideBarProps {
   setSelectedChatInfo: (value: any) => void;
   notifications: any;
   setNotifications: (value: any) => void;
+  newMessageUsers: any;
+  setNewMessageUsers: (value: any) => void;
 }
 
 const SideBar: React.FC<SideBarProps> = ({
@@ -95,6 +97,8 @@ const SideBar: React.FC<SideBarProps> = ({
   setSelectedChatInfo,
   notifications,
   setNotifications,
+  newMessageUsers,
+  setNewMessageUsers,
 }) => {
   const navigate = useNavigate();
   const userName = useTypedSelector(selectedUserName);
@@ -521,6 +525,17 @@ const SideBar: React.FC<SideBarProps> = ({
                     onClick={() => {
                       setSelectedChat(chat._id);
                       setSelectedChatInfo(chat);
+                      setNewMessageUsers((prevNewMessageUsers: any) => {
+                        return {
+                          ...prevNewMessageUsers,
+                          [chat._id]: 0,
+                        };
+                      });
+                      setNotifications((prevNotifications: any) => {
+                        return prevNotifications.filter(
+                          (item: any) => item.chat._id !== chat._id
+                        );
+                      });
                     }}
                     key={friend._id}
                   >
@@ -599,9 +614,11 @@ const SideBar: React.FC<SideBarProps> = ({
                           justifyContent: "center",
                           fontSize: "10px",
                           color: isSelected ? "#000" : "#fff",
+                          opacity: newMessageUsers[chat._id] > 0 ? 1 : 0,
                         }}
                       >
-                        {index + 1}
+                        {newMessageUsers[chat._id] > 0 &&
+                          newMessageUsers[chat._id] / 2}
                       </Box>
                     </Box>
                   </Box>
