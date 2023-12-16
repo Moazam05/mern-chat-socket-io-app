@@ -1,11 +1,13 @@
+// React Imports
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// Custom Imports
 import PublicRoutes from "./routes/PublicRoutes";
+import ProtectedRoutes from "./routes/ProtectedRoutes";
 import SignUp from "./views/SignUp";
 import Login from "./views/Login";
-import ProtectedRoutes from "./routes/ProtectedRoutes";
 import Home from "./views/Home";
-import NotFound from "./views/NotFound";
 import Profile from "./views/Profile";
+import NotFound from "./views/NotFound";
 
 const App = () => {
   return (
