@@ -318,35 +318,90 @@ const Chat: React.FC<ChatProps> = ({
             <Divider />
           </Box>
           <Box
-            ref={messageBoxRef}
             sx={{
-              margin: "20px 0",
-              width: "100%",
-              height: isTyping ? "67vh" : "72vh",
-              overflowY: "scroll",
-              "&::-webkit-scrollbar": {
-                width: "5px",
-                backgroundColor: "#f3f4f6",
-                borderRadius: "10px",
-              },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#513dea", // Color of the thumb
-                borderRadius: "10px",
-              },
+              minHeight: isTyping ? "67vh" : "75vh",
             }}
           >
-            {chatMessages?.length === 0 && (
-              <Box>
-                <SubHeading sx={{ textAlign: "center" }}>
-                  No conversation start yet
-                </SubHeading>
-              </Box>
-            )}
-            {chatMessages?.map((chat, index) => {
-              // if same user send multiple messages then show only one avatar
-              if (index > 0) {
-                if (chat.sender._id === chatMessages[index - 1].sender._id) {
-                  return (
+            <Box
+              ref={messageBoxRef}
+              sx={{
+                margin: "20px 0",
+                width: "100%",
+                maxHeight: isTyping ? "67vh" : "75vh",
+                overflowY: "scroll",
+                "&::-webkit-scrollbar": {
+                  display: "none",
+                },
+              }}
+            >
+              {chatMessages?.length === 0 && (
+                <Box>
+                  <SubHeading sx={{ textAlign: "center" }}>
+                    No conversation start yet
+                  </SubHeading>
+                </Box>
+              )}
+              {chatMessages?.map((chat, index) => {
+                // if same user send multiple messages then show only one avatar
+                if (index > 0) {
+                  if (chat.sender._id === chatMessages[index - 1].sender._id) {
+                    return (
+                      <Box
+                        key={chat._id}
+                        sx={{
+                          textAlign:
+                            chat.sender._id === userId ? "right" : "left",
+                          width: chat.sender._id === userId ? "50%" : "50%",
+                          background:
+                            chat.sender._id === userId ? "#513dea" : "#f3f4f6",
+                          color: chat.sender._id === userId ? "#fff" : "#000",
+                          padding: "10px",
+                          borderRadius: "10px",
+                          marginBottom: "10px",
+                          maxWidth: "300px",
+                          marginRight: "15px",
+                          marginLeft:
+                            chat.sender._id === userId ? "auto" : "45px",
+                        }}
+                      >
+                        <Box> {chat.content}</Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            fontSize: "10px",
+                            marginTop: "5px",
+                            color: chat.sender._id === userId ? "#fff" : "#000",
+                          }}
+                        >
+                          {formatTime(chat.createdAt)}
+                        </Box>
+                      </Box>
+                    );
+                  }
+                }
+                return (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    {chat.sender._id !== userId && (
+                      <Box>
+                        <img
+                          src={chat.sender.pic}
+                          alt="avatar"
+                          style={{
+                            width: "35px",
+                            height: "35px",
+                            borderRadius: "50%",
+                            marginBottom: "10px",
+                          }}
+                        />
+                      </Box>
+                    )}
                     <Box
                       key={chat._id}
                       sx={{
@@ -362,9 +417,21 @@ const Chat: React.FC<ChatProps> = ({
                         maxWidth: "300px",
                         marginRight: "15px",
                         marginLeft:
-                          chat.sender._id === userId ? "auto" : "45px",
+                          chat.sender._id === userId ? "auto" : "none",
                       }}
                     >
+                      {chat.sender._id !== userId && (
+                        <Box
+                          sx={{
+                            fontSize: "12px",
+                            marginBottom: "5px",
+                            fontWeight: 500,
+                            color: generateColorForName(chat.sender.name),
+                          }}
+                        >
+                          {chat.sender.name}
+                        </Box>
+                      )}
                       <Box> {chat.content}</Box>
                       <Box
                         sx={{
@@ -378,75 +445,10 @@ const Chat: React.FC<ChatProps> = ({
                         {formatTime(chat.createdAt)}
                       </Box>
                     </Box>
-                  );
-                }
-              }
-              return (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                  }}
-                >
-                  {chat.sender._id !== userId && (
-                    <Box>
-                      <img
-                        src={chat.sender.pic}
-                        alt="avatar"
-                        style={{
-                          width: "35px",
-                          height: "35px",
-                          borderRadius: "50%",
-                          marginBottom: "10px",
-                        }}
-                      />
-                    </Box>
-                  )}
-                  <Box
-                    key={chat._id}
-                    sx={{
-                      textAlign: chat.sender._id === userId ? "right" : "left",
-                      width: chat.sender._id === userId ? "50%" : "50%",
-                      background:
-                        chat.sender._id === userId ? "#513dea" : "#f3f4f6",
-                      color: chat.sender._id === userId ? "#fff" : "#000",
-                      padding: "10px",
-                      borderRadius: "10px",
-                      marginBottom: "10px",
-                      maxWidth: "300px",
-                      marginRight: "15px",
-                      marginLeft: chat.sender._id === userId ? "auto" : "none",
-                    }}
-                  >
-                    {chat.sender._id !== userId && (
-                      <Box
-                        sx={{
-                          fontSize: "12px",
-                          marginBottom: "5px",
-                          fontWeight: 500,
-                          color: generateColorForName(chat.sender.name),
-                        }}
-                      >
-                        {chat.sender.name}
-                      </Box>
-                    )}
-                    <Box> {chat.content}</Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        fontSize: "10px",
-                        marginTop: "5px",
-                        color: chat.sender._id === userId ? "#fff" : "#000",
-                      }}
-                    >
-                      {formatTime(chat.createdAt)}
-                    </Box>
                   </Box>
-                </Box>
-              );
-            })}
+                );
+              })}
+            </Box>
           </Box>
           <Box
             sx={{
