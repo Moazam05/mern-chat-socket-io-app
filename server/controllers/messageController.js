@@ -27,6 +27,12 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
     select: "name pic email",
   });
 
+  // groupAdmin Populate
+  const FullMessage2 = await User.populate(FullMessage, {
+    path: "chat.groupAdmin",
+    select: "name pic email",
+  });
+
   // Populate the latestMessage
   const chat = await Chat.findByIdAndUpdate(
     chatId,
@@ -36,7 +42,7 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    message: FullMessage,
+    message: FullMessage2,
     chat,
   });
 });

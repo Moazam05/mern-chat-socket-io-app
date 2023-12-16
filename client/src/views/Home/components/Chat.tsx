@@ -83,12 +83,6 @@ const Chat: React.FC<ChatProps> = ({
         !selectedChatCompare ||
         selectedChatCompare._id !== newMessage.chat._id
       ) {
-        setToast({
-          ...toast,
-          message: `${newMessage?.sender?.name} sent you a message`,
-          appearence: true,
-          type: "success",
-        });
         const isNotificationExists = notifications.some(
           (notification: any) =>
             notification?.sender?._id === newMessage?.sender?._id

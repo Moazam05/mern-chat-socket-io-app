@@ -35,6 +35,7 @@ const Home = () => {
           setChats={setChats}
           setSelectedChatInfo={setSelectedChatInfo}
           notifications={withoutDuplicatesNotifications}
+          setNotifications={setNotifications}
         />
       </Box>
       <Box sx={{ flex: 2, background: "#fff" }}>

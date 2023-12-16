@@ -11,7 +11,17 @@ import {
   selectedUserName,
 } from "../../../redux/auth/authSlice";
 // MUI Imports
-import { Avatar, Box, Button, Tooltip } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Button,
+  Tooltip,
+  MenuItem,
+  Menu,
+  styled,
+  MenuProps,
+  IconButton,
+} from "@mui/material";
 // Custom Imports
 import { Heading, SubHeading } from "../../../components/Heading";
 import SearchBar from "../../../components/SearchBar";
@@ -29,7 +39,39 @@ import { uniqBy } from "lodash";
 import { FaPlus } from "react-icons/fa6";
 import CreateGroupChatModal from "./CreateGroupChatModal";
 import { formatTime } from "../../../utils";
-// import { IoMdNotifications } from "react-icons/io";
+import { IoMdNotifications } from "react-icons/io";
+
+const StyledMenu = styled((props: MenuProps) => (
+  <Menu
+    elevation={0}
+    anchorOrigin={{
+      vertical: "bottom",
+      horizontal: "right",
+    }}
+    transformOrigin={{
+      vertical: "top",
+      horizontal: "right",
+    }}
+    {...props}
+  />
+))(() => ({
+  "& .MuiPaper-root": {
+    borderRadius: 12,
+    width: 300,
+    background: "#fff",
+    color: "#334155",
+    boxShadow:
+      "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+    "& .MuiMenu-list": {
+      padding: "10px 5px",
+    },
+    "& .MuiMenuItem-root": {
+      "& .MuiSvgIcon-root": {
+        fontSize: 18,
+      },
+    },
+  },
+}));
 
 interface SideBarProps {
   searchText: string;
@@ -40,6 +82,7 @@ interface SideBarProps {
   setChats: (value: any) => void;
   setSelectedChatInfo: (value: any) => void;
   notifications: any;
+  setNotifications: (value: any) => void;
 }
 
 const SideBar: React.FC<SideBarProps> = ({
@@ -51,6 +94,7 @@ const SideBar: React.FC<SideBarProps> = ({
   setChats,
   setSelectedChatInfo,
   notifications,
+  setNotifications,
 }) => {
   const navigate = useNavigate();
   const userName = useTypedSelector(selectedUserName);
@@ -59,6 +103,7 @@ const SideBar: React.FC<SideBarProps> = ({
 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<string>("");
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   // state
   const [toast, setToast] = useState({
     message: "",
@@ -167,16 +212,147 @@ const SideBar: React.FC<SideBarProps> = ({
           <Heading sx={{ fontSize: "20px", color: "#513dea" }}>
             {userName}
           </Heading>
-          <Tooltip title="Edit Profile" placement="bottom">
-            <Box
-              sx={{ cursor: "pointer" }}
-              onClick={() => {
-                navigate("/profile");
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <Tooltip title="Edit Profile" placement="bottom">
+              <Box
+                sx={{ cursor: "pointer" }}
+                onClick={() => {
+                  navigate("/profile");
+                }}
+              >
+                <GoPencil />
+              </Box>
+            </Tooltip>
+            <IconButton
+              onClick={(e) => setAnchorEl(e.currentTarget)}
+              color="inherit"
+              sx={{
+                position: "relative",
               }}
             >
-              <GoPencil />
-            </Box>
-          </Tooltip>
+              <IoMdNotifications />
+              {notifications?.length > 0 && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "0",
+                    right: "-3px",
+                    background: "#513dea",
+                    borderRadius: "50%",
+                    width: "15px",
+                    height: "15px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "10px",
+                    color: "#fff",
+                  }}
+                >
+                  {notifications?.length}
+                </Box>
+              )}
+            </IconButton>
+            <StyledMenu
+              onClick={() => setAnchorEl(null)}
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+            >
+              {notifications?.length > 0 ? (
+                <>
+                  {notifications?.map((notification: any, index: number) => (
+                    <Box key={index}>
+                      {notification.chat.users
+                        .filter((user: any) =>
+                          notification.chat.isGroupChat
+                            ? user._id === userId
+                            : user._id !== userId
+                        )
+                        .map((friend: any) => {
+                          console.log("notification", notification);
+                          return (
+                            <MenuItem
+                              key={friend._id}
+                              sx={{
+                                cursor: "pointer",
+                                borderRadius: "5px",
+                              }}
+                              onClick={() => {
+                                setSelectedChat(notification.chat._id);
+                                setSelectedChatInfo(notification.chat);
+                                setAnchorEl(null);
+                                setNotifications((prevNotifications: any) =>
+                                  prevNotifications.filter(
+                                    (item: any) => item._id !== notification._id
+                                  )
+                                );
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                }}
+                              >
+                                <SubHeading
+                                  sx={{
+                                    fontSize: "12px",
+                                  }}
+                                >
+                                  {notification?.chat?.isGroupChat ? (
+                                    <Box>
+                                      New Message in{" "}
+                                      <span
+                                        style={{
+                                          fontWeight: "bold",
+                                          color: "#513dea",
+                                        }}
+                                      >
+                                        {notification?.chat?.chatName}
+                                      </span>
+                                    </Box>
+                                  ) : (
+                                    <Box>
+                                      New Message from{" "}
+                                      <span
+                                        style={{
+                                          fontWeight: "bold",
+                                          color: "#513dea",
+                                        }}
+                                      >
+                                        {friend?.name}{" "}
+                                      </span>
+                                    </Box>
+                                  )}
+                                </SubHeading>
+                              </Box>
+                            </MenuItem>
+                          );
+                        })}
+                    </Box>
+                  ))}
+                </>
+              ) : (
+                <Box
+                  sx={{
+                    padding: "10px",
+                    fontSize: "12px",
+                    color: "gray",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  No Notifications
+                </Box>
+              )}
+            </StyledMenu>
+          </Box>
         </Box>
       </Box>
       <Box sx={{ margin: "10px 0", padding: "0 20px" }}>
@@ -184,7 +360,7 @@ const SideBar: React.FC<SideBarProps> = ({
           sx={{
             margin: "10px 0",
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             alignItems: "center",
           }}
         >
