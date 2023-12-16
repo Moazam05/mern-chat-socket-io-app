@@ -147,6 +147,7 @@ const SideBar: React.FC<SideBarProps> = ({
         const newChat = chat?.data?.chat;
 
         setSelectedChat(newChat._id);
+        setSelectedChatInfo(newChat);
         setChats((prevChats: any) => [...prevChats, newChat]);
       }
 
@@ -273,7 +274,6 @@ const SideBar: React.FC<SideBarProps> = ({
                             : user._id !== userId
                         )
                         .map((friend: any) => {
-                          console.log("notification", notification);
                           return (
                             <MenuItem
                               key={friend._id}
