@@ -4,8 +4,8 @@ import SideBar from "./components/SideBar";
 import ChatInfo from "./components/ChatInfo";
 import Chat from "./components/Chat";
 import { SubHeading } from "../../components/Heading";
-import { MdLibraryBooks } from "react-icons/md";
 import { IoMdPerson } from "react-icons/io";
+import { uniqBy } from "lodash";
 
 const Home = () => {
   // States for SideBar
@@ -13,6 +13,9 @@ const Home = () => {
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const [selectedChatInfo, setSelectedChatInfo] = useState<any>(null);
   const [chats, setChats] = useState<any>([]);
+  const [notifications, setNotifications] = useState<any>([]);
+
+  const withoutDuplicatesNotifications = uniqBy(notifications, "_id");
 
   return (
     <Box
@@ -31,35 +34,16 @@ const Home = () => {
           chats={chats}
           setChats={setChats}
           setSelectedChatInfo={setSelectedChatInfo}
+          notifications={withoutDuplicatesNotifications}
         />
       </Box>
       <Box sx={{ flex: 2, background: "#fff" }}>
-        {selectedChat === null ? (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100%",
-            }}
-          >
-            <SubHeading
-              sx={{
-                color: "#b1b3b5",
-                fontWeight: "normal",
-                display: "flex",
-                alignItems: "center",
-                gap: "5px",
-              }}
-            >
-              <MdLibraryBooks fontSize={20} />
-              Click on a user to start chatting
-            </SubHeading>
-          </Box>
-        ) : (
-          <Chat selectedChatInfo={selectedChatInfo} />
-        )}
+        <Chat
+          selectedChatInfo={selectedChatInfo}
+          selectedChat={selectedChat}
+          notifications={notifications}
+          setNotifications={setNotifications}
+        />
       </Box>
       <Box sx={{ flex: 1, background: "#f3f4f6" }}>
         {selectedChat === null ? (

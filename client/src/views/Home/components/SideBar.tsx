@@ -29,6 +29,7 @@ import { uniqBy } from "lodash";
 import { FaPlus } from "react-icons/fa6";
 import CreateGroupChatModal from "./CreateGroupChatModal";
 import { formatTime } from "../../../utils";
+// import { IoMdNotifications } from "react-icons/io";
 
 interface SideBarProps {
   searchText: string;
@@ -38,6 +39,7 @@ interface SideBarProps {
   chats: any;
   setChats: (value: any) => void;
   setSelectedChatInfo: (value: any) => void;
+  notifications: any;
 }
 
 const SideBar: React.FC<SideBarProps> = ({
@@ -48,6 +50,7 @@ const SideBar: React.FC<SideBarProps> = ({
   chats,
   setChats,
   setSelectedChatInfo,
+  notifications,
 }) => {
   const navigate = useNavigate();
   const userName = useTypedSelector(selectedUserName);
@@ -177,7 +180,14 @@ const SideBar: React.FC<SideBarProps> = ({
         </Box>
       </Box>
       <Box sx={{ margin: "10px 0", padding: "0 20px" }}>
-        <Box sx={{ margin: "10px 0", display: "flex", justifyContent: "end" }}>
+        <Box
+          sx={{
+            margin: "10px 0",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Button
             variant="outlined"
             sx={{
