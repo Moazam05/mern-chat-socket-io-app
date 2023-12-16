@@ -1,14 +1,18 @@
+// React Imports
 import { useState } from "react";
+import { IoMdPerson } from "react-icons/io";
+// Material UI Imports
 import { Box } from "@mui/system";
+// Custom Imports
 import SideBar from "./components/SideBar";
 import ChatInfo from "./components/ChatInfo";
 import Chat from "./components/Chat";
 import { SubHeading } from "../../components/Heading";
-import { IoMdPerson } from "react-icons/io";
+// Lodash Imports
 import { uniqBy } from "lodash";
 
 const Home = () => {
-  // States for SideBar
+  // States
   const [searchText, setSearchText] = useState<string>("");
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const [selectedChatInfo, setSelectedChatInfo] = useState<any>(null);
@@ -47,7 +51,6 @@ const Home = () => {
           selectedChat={selectedChat}
           notifications={notifications}
           setNotifications={setNotifications}
-          newMessageUsers={newMessageUsers}
           setNewMessageUsers={setNewMessageUsers}
         />
       </Box>

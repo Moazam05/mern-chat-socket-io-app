@@ -1,9 +1,14 @@
+// React Imports
 import { useEffect, useState } from "react";
+// Material UI Imports
 import { Box } from "@mui/material";
+// Custom Imports
 import { SubHeading } from "../../../components/Heading";
-import useTypedSelector from "../../../hooks/useTypedSelector";
-import { selectedUserId } from "../../../redux/auth/authSlice";
 import CustomChip from "../../../components/CustomChip";
+// Redux Imports
+import { selectedUserId } from "../../../redux/auth/authSlice";
+// Hooks Imports
+import useTypedSelector from "../../../hooks/useTypedSelector";
 
 interface ChatInfoProps {
   selectedChatInfo: any;

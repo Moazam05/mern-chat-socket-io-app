@@ -1,15 +1,8 @@
 // React Imports
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GoPencil } from "react-icons/go";
 // Hooks
 import useTypedSelector from "../../../hooks/useTypedSelector";
-// Redux Imports
-import {
-  selectedUserAvatar,
-  selectedUserId,
-  selectedUserName,
-} from "../../../redux/auth/authSlice";
 // MUI Imports
 import {
   Avatar,
@@ -22,24 +15,33 @@ import {
   MenuProps,
   IconButton,
 } from "@mui/material";
-// Custom Imports
-import { Heading, SubHeading } from "../../../components/Heading";
-import SearchBar from "../../../components/SearchBar";
-// React Icons
-import { BiLogOutCircle } from "react-icons/bi";
+// Redux Imports
+import {
+  selectedUserAvatar,
+  selectedUserId,
+  selectedUserName,
+} from "../../../redux/auth/authSlice";
 import { useGetAllUsersQuery } from "../../../redux/api/userApiSlice";
-import DotLoader from "../../../components/Spinner/dotLoader";
 import {
   useCreateChatMutation,
   useGetChatQuery,
 } from "../../../redux/api/chatApiSlice";
+// Lodash Imports
+import { uniqBy } from "lodash";
+// Utils Imports
+import { formatTime } from "../../../utils";
+// React Icons
+import { FaPlus } from "react-icons/fa6";
+import { BiLogOutCircle } from "react-icons/bi";
+import { IoMdNotifications } from "react-icons/io";
+import { GoPencil } from "react-icons/go";
+// Custom Imports
+import CreateGroupChatModal from "./CreateGroupChatModal";
+import { Heading, SubHeading } from "../../../components/Heading";
+import SearchBar from "../../../components/SearchBar";
+import DotLoader from "../../../components/Spinner/dotLoader";
 import ToastAlert from "../../../components/ToastAlert/ToastAlert";
 import Spinner from "../../../components/Spinner";
-import { uniqBy } from "lodash";
-import { FaPlus } from "react-icons/fa6";
-import CreateGroupChatModal from "./CreateGroupChatModal";
-import { formatTime } from "../../../utils";
-import { IoMdNotifications } from "react-icons/io";
 
 const StyledMenu = styled((props: MenuProps) => (
   <Menu
@@ -73,6 +75,7 @@ const StyledMenu = styled((props: MenuProps) => (
   },
 }));
 
+// Props Types
 interface SideBarProps {
   searchText: string;
   setSearchText: (value: string) => void;
@@ -105,10 +108,10 @@ const SideBar: React.FC<SideBarProps> = ({
   const userAvatar = useTypedSelector(selectedUserAvatar);
   const userId = useTypedSelector(selectedUserId);
 
+  // state
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
-  // state
   const [toast, setToast] = useState({
     message: "",
     appearence: false,

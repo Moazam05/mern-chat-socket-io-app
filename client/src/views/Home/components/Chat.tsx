@@ -1,13 +1,19 @@
+// React Imports
 import { useEffect, useState, useRef } from "react";
+import { LuSendHorizonal } from "react-icons/lu";
+// Material UI Imports
 import { Avatar, Box, Divider, Tooltip } from "@mui/material";
+// Hooks Imports
+import useTypedSelector from "../../../hooks/useTypedSelector";
+// Redux Imports
+import { selectedUserId } from "../../../redux/auth/authSlice";
+// React Icons Imports
+import { GoPencil } from "react-icons/go";
+import { MdLibraryBooks } from "react-icons/md";
+// Custom Imports
 import { SubHeading } from "../../../components/Heading";
 import PrimaryInput from "../../../components/PrimaryInput/PrimaryInput";
-import { LuSendHorizonal } from "react-icons/lu";
-import useTypedSelector from "../../../hooks/useTypedSelector";
-import { selectedUserId } from "../../../redux/auth/authSlice";
-import { GoPencil } from "react-icons/go";
 import CreateGroupChatModal from "./CreateGroupChatModal";
-import { MdLibraryBooks } from "react-icons/md";
 import {
   useCreateMessageMutation,
   useGetMessagesQuery,
@@ -15,16 +21,17 @@ import {
 import ToastAlert from "../../../components/ToastAlert/ToastAlert";
 import OverlayLoader from "../../../components/Spinner/OverlayLoader";
 import Spinner from "../../../components/Spinner";
-import { formatTime, generateColorForName } from "../../../utils";
-import io from "socket.io-client";
 import DotLoader from "../../../components/Spinner/dotLoader";
+// Utils Imports
+import { formatTime, generateColorForName } from "../../../utils";
+// Socket.io Imports
+import io from "socket.io-client";
 
 interface ChatProps {
   selectedChatInfo: any;
   selectedChat: any;
   notifications: any;
   setNotifications: any;
-  newMessageUsers?: any;
   setNewMessageUsers?: any;
 }
 
@@ -38,12 +45,11 @@ const Chat: React.FC<ChatProps> = ({
   selectedChat,
   notifications,
   setNotifications,
-  newMessageUsers,
   setNewMessageUsers,
 }) => {
   const userId = useTypedSelector(selectedUserId);
   const messageBoxRef = useRef<any>(null);
-
+  // states
   const [newMessage, setNewMessage] = useState<string>("");
   const [userData, setUserData] = useState<any>({});
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -96,10 +102,8 @@ const Chat: React.FC<ChatProps> = ({
         }
         // Extract sender information from the new message
         const senderId = newMessage?.sender?._id;
-
         // Check if the user is the sender (to avoid counting own messages)
         if (senderId && senderId !== user?.data?.user?._id) {
-          // Update the newMessageUsers state
           setNewMessageUsers((prev: any) => {
             const userCount = prev[newMessage.chat._id] || 0;
             return { ...prev, [newMessage.chat._id]: userCount + 1 };

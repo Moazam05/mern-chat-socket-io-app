@@ -1,28 +1,35 @@
 // React Imports
 import { useEffect, useState } from "react";
+// Material UI Imports
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { Button, IconButton } from "@mui/material";
+// Icons Imports
 import { AiOutlineClose } from "react-icons/ai";
 // Formik Imports
 import { Form, Formik, FormikProps } from "formik";
+// Utils Imports
 import { onKeyDown } from "../../../utils";
+// Custom Imports
 import { SubHeading } from "../../../components/Heading";
 import PrimaryInput from "../../../components/PrimaryInput/PrimaryInput";
-import * as Yup from "yup";
-import CustomAutocomplete from "../../../components/AutoComplete";
-import { useGetAllUsersQuery } from "../../../redux/api/userApiSlice";
+import DotLoader from "../../../components/Spinner/dotLoader";
 import ToastAlert from "../../../components/ToastAlert/ToastAlert";
+import CustomAutocomplete from "../../../components/AutoComplete";
+// Yup Imports
+import * as Yup from "yup";
+// Redux Imports
+import { useGetAllUsersQuery } from "../../../redux/api/userApiSlice";
 import {
   useAddMemberToGroupChatMutation,
   useCreateGroupChatMutation,
   useLeaveGroupChatMutation,
   useRenameGroupChatMutation,
 } from "../../../redux/api/chatApiSlice";
-import DotLoader from "../../../components/Spinner/dotLoader";
-import useTypedSelector from "../../../hooks/useTypedSelector";
 import { selectedUserId } from "../../../redux/auth/authSlice";
+// Hooks Imports
+import useTypedSelector from "../../../hooks/useTypedSelector";
 
 const style = {
   position: "absolute" as "absolute",
@@ -36,11 +43,13 @@ const style = {
   outline: "none",
 };
 
+// Yup Validation Schema
 export const groupChatSchema = Yup.object().shape({
   chatName: Yup.string().required("Chat Name is required").nullable(),
   addPeople: Yup.array().required("Minimum 2 People are required").min(1),
 });
 
+// Props Interface
 interface CreateGroupChatModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -60,6 +69,7 @@ const CreateGroupChatModal: React.FC<CreateGroupChatModalProps> = ({
   newChat,
 }) => {
   const userId = useTypedSelector(selectedUserId);
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [formValues, setFormValues] = useState<ChatForm>({
     chatName: "",
