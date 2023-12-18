@@ -5,7 +5,7 @@ const initSocket = (server) => {
   const io = socketIO(server, {
     pingTimeout: 60000,
     cors: {
-      origin: "http://localhost:3000",
+      origin: "*",
     },
   });
 
