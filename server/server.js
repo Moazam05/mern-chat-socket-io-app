@@ -13,7 +13,11 @@ process.on("uncaughtException", (err) => {
 
 const dbURI = process.env.DATABASE;
 
-mongoose.connect(dbURI);
+mongoose.connect(dbURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+});
 
 const db = mongoose.connection;
 
