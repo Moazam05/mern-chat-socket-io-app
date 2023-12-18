@@ -13,7 +13,7 @@ const messageRouter = require("./routes/messageRoutes");
 const corsOptions = {
   // origin: "http://localhost:3000",
   // credentials: true,
-  origin: "*",
+  origin: "https://mern-chat-app-server-9gwt.onrender.com",
   methods: "*",
   allowedHeaders: "*",
 };
