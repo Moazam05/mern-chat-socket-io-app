@@ -7,9 +7,6 @@ import {
   TextField,
   createFilterOptions,
 } from "@mui/material";
-// 3rd Party Imports
-import parse from "autosuggest-highlight/parse";
-import match from "autosuggest-highlight/match";
 
 type Props = {
   options: any;
@@ -55,28 +52,6 @@ const CustomAutocomplete = (props: Props) => {
             : props.onChange && props.onChange(value);
         }}
         getOptionLabel={(option) => option?.name}
-        renderOption={(props: any, option: any, { inputValue }) => {
-          const matches = match(option.name, inputValue, {
-            insideWords: true,
-          });
-          const parts = parse(option.name, matches);
-          return (
-            <li {...props}>
-              <div>
-                {parts.map((part: any, index: any) => (
-                  <span
-                    key={option?.id}
-                    style={{
-                      fontWeight: part.highlight ? 800 : 400,
-                    }}
-                  >
-                    {part.text}
-                  </span>
-                ))}
-              </div>
-            </li>
-          );
-        }}
         sx={{
           fontWeight: "400",
           borderRadius: "5px",

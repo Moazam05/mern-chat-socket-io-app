@@ -2,6 +2,7 @@ const express = require("express");
 const morgan = require("morgan");
 const colors = require("colors");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 // Custom Imports
 const AppError = require("./utils/appError");
@@ -11,9 +12,7 @@ const chatRouter = require("./routes/chatRoutes");
 const messageRouter = require("./routes/messageRoutes");
 
 const corsOptions = {
-  // origin: "http://localhost:3000",
-  // credentials: true,
-  origin: "https://mern-chat-app-server-9gwt.onrender.com",
+  origin: "*",
   methods: "*",
   allowedHeaders: "*",
 };
@@ -31,14 +30,23 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => {
-  res.send("Chat Socket io App API is running...");
-});
-
 // ROUTES
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/chats", chatRouter);
 app.use("/api/v1/messages", messageRouter);
+
+// PRODUCTION SETUP
+if (process.env.NODE_ENV === "production") {
+  const __dirname = path.resolve();
+  app.use(express.static("../client/build"));
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.send("Chat Socket io App API is running...");
+  });
+}
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
