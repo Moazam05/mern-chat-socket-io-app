@@ -36,7 +36,7 @@ interface ChatProps {
 }
 
 // SOCKET.IO IMPLEMENTATION
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = process.env.REACT_APP_SOCKET_URL;
 let socket: any | undefined;
 let selectedChatCompare: any;
 
@@ -72,53 +72,54 @@ const Chat: React.FC<ChatProps> = ({
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
-    // Create the socket connection
-    socket = io(ENDPOINT);
+    if (ENDPOINT) {
+      // Create the socket connection
+      socket = io(ENDPOINT);
 
-    // Emit the "setup" event to the server
-    socket.emit("setup", user?.data?.user);
+      // Emit the "setup" event to the server
+      socket.emit("setup", user?.data?.user);
 
-    // Listen for the "connected" event from the server
-    socket.on("connected", () => {
-      setSocketConnected(true);
-    });
+      // Listen for the "connected" event from the server
+      socket.on("connected", () => {
+        setSocketConnected(true);
+      });
 
-    // Listen for the "typing" event from the server
-    socket.on("typing", () => setIsTyping(true));
-    socket.on("stop typing", () => setIsTyping(false));
+      // Listen for the "typing" event from the server
+      socket.on("typing", () => setIsTyping(true));
+      socket.on("stop typing", () => setIsTyping(false));
 
-    // Listen for the "message received" event from the server
-    socket.on("message received", (newMessage: any) => {
-      if (
-        !selectedChatCompare ||
-        selectedChatCompare._id !== newMessage.chat._id
-      ) {
-        const isNotificationExists = notifications.some(
-          (notification: any) =>
-            notification?.sender?._id === newMessage?.sender?._id
-        );
-        if (!isNotificationExists) {
-          setNotifications((prev: any) => [...prev, newMessage]);
-        }
-        // Extract sender information from the new message
-        const senderId = newMessage?.sender?._id;
-        // Check if the user is the sender (to avoid counting own messages)
-        if (senderId && senderId !== user?.data?.user?._id) {
-          setNewMessageUsers((prev: any) => {
-            const userCount = prev[newMessage.chat._id] || 0;
-            return { ...prev, [newMessage.chat._id]: userCount + 1 };
+      // Listen for the "message received" event from the server
+      socket.on("message received", (newMessage: any) => {
+        if (
+          !selectedChatCompare ||
+          selectedChatCompare._id !== newMessage.chat._id
+        ) {
+          const isNotificationExists = notifications.some(
+            (notification: any) =>
+              notification?.sender?._id === newMessage?.sender?._id
+          );
+          if (!isNotificationExists) {
+            setNotifications((prev: any) => [...prev, newMessage]);
+          }
+          // Extract sender information from the new message
+          const senderId = newMessage?.sender?._id;
+          // Check if the user is the sender (to avoid counting own messages)
+          if (senderId && senderId !== user?.data?.user?._id) {
+            setNewMessageUsers((prev: any) => {
+              const userCount = prev[newMessage.chat._id] || 0;
+              return { ...prev, [newMessage.chat._id]: userCount + 1 };
+            });
+          }
+        } else {
+          setChatMessages((prev) => {
+            const isMessageExists = prev.some(
+              (msg) => msg._id === newMessage._id
+            );
+            return isMessageExists ? prev : [...prev, newMessage];
           });
         }
-      } else {
-        setChatMessages((prev) => {
-          const isMessageExists = prev.some(
-            (msg) => msg._id === newMessage._id
-          );
-          return isMessageExists ? prev : [...prev, newMessage];
-        });
-      }
-    });
-
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
