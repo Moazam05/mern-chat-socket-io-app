@@ -621,7 +621,9 @@ const SideBar: React.FC<SideBarProps> = ({
                         }}
                       >
                         {newMessageUsers[chat._id] > 0 &&
-                          newMessageUsers[chat._id] / 2}
+                        process.env.NODE_ENV === "development"
+                          ? newMessageUsers[chat._id] / 2
+                          : newMessageUsers[chat._id]}
                       </Box>
                     </Box>
                   </Box>
